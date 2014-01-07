@@ -1,7 +1,5 @@
 package com.zvoykish.restdl.objects;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
 import java.util.List;
 
 /**
@@ -11,10 +9,20 @@ import java.util.List;
  * Time: 00:37
  */
 @SuppressWarnings("UnusedDeclaration")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+@org.codehaus.jackson.map.annotate.JsonSerialize(
+        include = org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL)
+@com.fasterxml.jackson.databind.annotation.JsonSerialize(
+        include = com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL)
 public class EndpointInfo implements Comparable<EndpointInfo> {
+    public enum HttpMethod {
+        GET,
+        POST,
+        PUT,
+        DELETE
+    }
+
     private String description;
-    private String method;
+    private HttpMethod httpMethod;
     private String url;
     private List<AnObject> queryParams;
     private TypedObject requestParam;
@@ -29,12 +37,12 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         this.description = description;
     }
 
-    public String getMethod() {
-        return method;
+    public HttpMethod getHttpMethod() {
+        return httpMethod;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
+    public void setHttpMethod(HttpMethod httpMethod) {
+        this.httpMethod = httpMethod;
     }
 
     public String getUrl() {
@@ -79,6 +87,6 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
 
     @Override
     public int compareTo(EndpointInfo o) {
-        return (getMethod() + getUrl()).compareTo(o.getMethod() + o.getUrl());
+        return (getHttpMethod() + getUrl()).compareTo(o.getHttpMethod() + o.getUrl());
     }
 }

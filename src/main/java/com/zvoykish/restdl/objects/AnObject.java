@@ -1,7 +1,5 @@
 package com.zvoykish.restdl.objects;
 
-import org.codehaus.jackson.map.annotate.JsonSerialize;
-
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
@@ -9,7 +7,10 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  * Time: 00:51
  */
 @SuppressWarnings("UnusedDeclaration")
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_EMPTY)
+@org.codehaus.jackson.map.annotate.JsonSerialize(
+        include = org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPTY)
+@com.fasterxml.jackson.databind.annotation.JsonSerialize(
+        include = com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_EMPTY)
 public class AnObject {
     private String name;
     private TypedObject type;
