@@ -9,7 +9,7 @@
 
     <groupId>com.zvoykish</groupId>
     <artifactId>restdl</artifactId>
-    <version>0.1</version>
+    <version>0.1.1-SNAPSHOT</version>
 
     <modules>
         <module>restdl-core</module>
