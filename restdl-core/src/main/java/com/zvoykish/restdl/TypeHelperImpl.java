@@ -3,6 +3,7 @@ package com.zvoykish.restdl;
 import com.zvoykish.restdl.objects.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -67,8 +68,15 @@ public class TypeHelperImpl implements TypeHelper {
     public List<AnObject> fieldsToAnObjects(Field[] allFields) {
         List<AnObject> result = new ArrayList<>();
         for (Field field : allFields) {
-            result.add(new AnObject(field.getName(), typeToAType(field.getGenericType())));
+            if (isEligible(field)) {
+                result.add(new AnObject(field.getName(), typeToAType(field.getGenericType())));
+            }
         }
         return result;
+    }
+
+    private boolean isEligible(Field field) {
+        int modifiers = field.getModifiers();
+        return !Modifier.isStatic(modifiers) && !Modifier.isTransient(modifiers);
     }
 }

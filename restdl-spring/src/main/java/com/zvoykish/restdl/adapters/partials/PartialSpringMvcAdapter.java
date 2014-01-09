@@ -6,7 +6,6 @@ import com.zvoykish.restdl.objects.AnObject;
 import com.zvoykish.restdl.objects.EndpointInfo;
 import com.zvoykish.restdl.objects.TypedObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
@@ -28,13 +27,12 @@ import java.util.*;
  */
 @Component
 public class PartialSpringMvcAdapter extends BasePartialAdapter {
-    @Value("${com.zvoykish.restdl.base.package}")
-    private String basePackage;
-
     @Autowired
     private ApplicationContext context;
 
     private TypeHelper typeHelper;
+
+    private String basePackage = System.getProperty("restdl.base.package");
 
     public String getBasePackage() {
         return basePackage;
