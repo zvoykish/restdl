@@ -8,9 +8,9 @@ package com.zvoykish.restdl.objects;
  */
 @SuppressWarnings("UnusedDeclaration")
 @org.codehaus.jackson.map.annotate.JsonSerialize(
-        include = org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_EMPTY)
+        include = org.codehaus.jackson.map.annotate.JsonSerialize.Inclusion.NON_NULL)
 @com.fasterxml.jackson.databind.annotation.JsonSerialize(
-        include = com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_EMPTY)
+        include = com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL)
 public class AnObject {
     private String name;
     private TypedObject type;
@@ -32,6 +32,10 @@ public class AnObject {
 
     public TypedObject getType() {
         return type;
+    }
+
+    public void setType(TypedObject type) {
+        this.type = type;
     }
 
     public String getDefaultValue() {

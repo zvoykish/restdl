@@ -18,6 +18,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created with IntelliJ IDEA.
@@ -39,16 +40,28 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
     }
 
     public Collection<Class> getWebControllers() {
+        Collection<Class> classes = new HashSet<>();
         Map<String, Object> controllerMap = context.getBeansWithAnnotation(Controller.class);
-        Set<Class> classes = new HashSet<>();
         for (Object controller : controllerMap.values()) {
             classes.add(controller.getClass());
         }
+        controllerMap = context.getBeansWithAnnotation(RequestMapping.class);
+        for (Object controller : controllerMap.values()) {
+            classes.add(controller.getClass());
+        }
+
+        classes = new ArrayList<>(classes);
+        Collections.sort((List<Class>) classes, new Comparator<Class>() {
+            @Override
+            public int compare(Class o1, Class o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return classes;
     }
 
     public String getControllerBaseUrl(Class<?> controllerClass) {
-        String baseUrl = null;
+        String baseUrl = "";
         RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
         if (controllerMapping != null) {
             String[] values = controllerMapping.value();
@@ -60,7 +73,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
     }
 
     public String getMethodUrl(Method method) {
-        String methodUrl = null;
+        String methodUrl = "";
         RequestMapping methodMapping = method.getAnnotation(RequestMapping.class);
         if (methodMapping != null) {
             String[] values = methodMapping.value();
@@ -83,7 +96,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
         return httpMethod;
     }
 
-    public List<AnObject> getMethodQueryParams(Method method) {
+    public List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         List<AnObject> queryParams = new ArrayList<>();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Type[] parameterTypes = method.getGenericParameterTypes();
@@ -95,7 +108,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
                         Type paramType = parameterTypes[i];
                         if (annotation instanceof RequestParam) {
                             RequestParam param = (RequestParam) annotation;
-                            TypedObject type = typeHelper.typeToAType(paramType);
+                            TypedObject type = typeHelper.typeToAType(paramType, objects);
                             queryParams.add(new AnObject(param.value(), type, param.defaultValue()));
                         }
                     }
@@ -103,10 +116,16 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
             }
         }
 
+        Collections.sort(queryParams, new Comparator<AnObject>() {
+            @Override
+            public int compare(AnObject o1, AnObject o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
         return queryParams;
     }
 
-    public TypedObject getMethodRequestParam(Method method) {
+    public TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         TypedObject requestParam = null;
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Type[] parameterTypes = method.getGenericParameterTypes();
@@ -117,7 +136,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
                     for (Annotation annotation : currAnns) {
                         Type paramType = parameterTypes[i];
                         if (annotation instanceof RequestBody) {
-                            requestParam = typeHelper.typeToAType(paramType);
+                            requestParam = typeHelper.typeToAType(paramType, objects);
                             break;
                         }
                     }

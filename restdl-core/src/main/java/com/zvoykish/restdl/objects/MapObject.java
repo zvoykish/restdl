@@ -1,5 +1,7 @@
 package com.zvoykish.restdl.objects;
 
+import java.util.Map;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
@@ -7,7 +9,7 @@ package com.zvoykish.restdl.objects;
  * Time: 22:59
  */
 @SuppressWarnings("UnusedDeclaration")
-public class MapObject implements TypedObject {
+public class MapObject extends BaseTypedObject {
     private String type;
     private TypedObject keys;
     private TypedObject values;
@@ -31,9 +33,19 @@ public class MapObject implements TypedObject {
         return values;
     }
 
+    @Override
+    public void updateReferences(Map<Long, TypedObject> typesById) {
+        if (keys instanceof ReferencedTypedObject) {
+            keys = typesById.get(keys.getId());
+        }
+
+        if (values instanceof ReferencedTypedObject) {
+            values = typesById.get(values.getId());
+        }
+    }
+
     public String toString() {
-        return "MapObject{" +
-                "type='" + type + '\'' +
+        return "Map{" +
                 ", keys=" + keys +
                 ", values=" + values +
                 '}';

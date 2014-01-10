@@ -1,8 +1,6 @@
 package com.zvoykish.restdl;
 
-import com.zvoykish.restdl.objects.EndpointInfo;
-
-import java.util.List;
+import com.zvoykish.restdl.objects.ApiDetailsResponse;
 
 /**
  * Created with IntelliJ IDEA.
@@ -11,5 +9,5 @@ import java.util.List;
  * Time: 00:55
  */
 public interface RestdlEngine {
-    List<EndpointInfo> getEndpointsInfo();
+    ApiDetailsResponse getApiDetails(boolean inlineTypes);
 }

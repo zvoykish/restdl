@@ -1,5 +1,7 @@
 package com.zvoykish.restdl.objects;
 
+import java.util.Map;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
@@ -8,5 +10,11 @@ package com.zvoykish.restdl.objects;
  */
 @SuppressWarnings("UnusedDeclaration")
 public interface TypedObject {
+    long getId();
+
     String getType();
+
+    ReferencedTypedObject toReference();
+
+    void updateReferences(Map<Long, TypedObject> typesById);
 }

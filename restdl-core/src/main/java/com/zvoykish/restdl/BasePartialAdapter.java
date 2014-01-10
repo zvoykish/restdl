@@ -7,6 +7,8 @@ import com.zvoykish.restdl.objects.TypedObject;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created with IntelliJ IDEA.
@@ -35,11 +37,11 @@ public abstract class BasePartialAdapter implements RestdlAdapter {
         throw new UnsupportedOperationException("Unsupported by adapter");
     }
 
-    public List<AnObject> getMethodQueryParams(Method method) {
+    public List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         throw new UnsupportedOperationException("Unsupported by adapter");
     }
 
-    public TypedObject getMethodRequestParam(Method method) {
+    public TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         throw new UnsupportedOperationException("Unsupported by adapter");
     }
 

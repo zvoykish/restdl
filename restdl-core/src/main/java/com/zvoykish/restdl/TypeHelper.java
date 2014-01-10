@@ -1,11 +1,10 @@
 package com.zvoykish.restdl;
 
-import com.zvoykish.restdl.objects.AnObject;
 import com.zvoykish.restdl.objects.TypedObject;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Type;
-import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created with IntelliJ IDEA.
@@ -14,7 +13,7 @@ import java.util.List;
  * Time: 01:10
  */
 public interface TypeHelper {
-    TypedObject typeToAType(Type paramType);
+    public static ThreadLocal<Boolean> INLINE_TYPES = new ThreadLocal<>();
 
-    List<AnObject> fieldsToAnObjects(Field[] allFields);
+    TypedObject typeToAType(Type paramType, Map<String, AtomicReference<TypedObject>> objects);
 }

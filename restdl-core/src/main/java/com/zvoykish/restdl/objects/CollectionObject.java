@@ -1,5 +1,7 @@
 package com.zvoykish.restdl.objects;
 
+import java.util.Map;
+
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
@@ -7,7 +9,7 @@ package com.zvoykish.restdl.objects;
  * Time: 00:54
  */
 @SuppressWarnings("UnusedDeclaration")
-public class CollectionObject implements TypedObject {
+public class CollectionObject extends BaseTypedObject {
     private String type;
     private TypedObject elementType;
 
@@ -26,7 +28,14 @@ public class CollectionObject implements TypedObject {
     }
 
     @Override
+    public void updateReferences(Map<Long, TypedObject> typesById) {
+        if (elementType instanceof ReferencedTypedObject) {
+            elementType = typesById.get(elementType.getId());
+        }
+    }
+
+    @Override
     public String toString() {
-        return "Collection of type: " + elementType;
+        return "Collection: " + elementType;
     }
 }

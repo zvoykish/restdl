@@ -10,6 +10,8 @@ import com.zvoykish.restdl.objects.TypedObject;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created with IntelliJ IDEA.
@@ -56,13 +58,13 @@ public abstract class BaseSpringWithJacksonAdapter implements RestdlAdapter {
     }
 
     @Override
-    public List<AnObject> getMethodQueryParams(Method method) {
-        return springMvcAdapter.getMethodQueryParams(method);
+    public List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
+        return springMvcAdapter.getMethodQueryParams(method, objects);
     }
 
     @Override
-    public TypedObject getMethodRequestParam(Method method) {
-        return springMvcAdapter.getMethodRequestParam(method);
+    public TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects) {
+        return springMvcAdapter.getMethodRequestParam(method, objects);
     }
 
     @Override

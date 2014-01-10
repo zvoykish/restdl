@@ -7,6 +7,8 @@ import com.zvoykish.restdl.objects.TypedObject;
 import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created with IntelliJ IDEA.
@@ -25,9 +27,9 @@ public interface RestdlAdapter {
 
     EndpointInfo.HttpMethod getMethodHttpMethod(Method method);
 
-    List<AnObject> getMethodQueryParams(Method method);
+    List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects);
 
-    TypedObject getMethodRequestParam(Method method);
+    TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects);
 
     Class<?> resolveTargetClass(Class<?> clazz);
 }
