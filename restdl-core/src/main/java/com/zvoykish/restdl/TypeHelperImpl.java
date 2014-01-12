@@ -171,9 +171,30 @@ public class TypeHelperImpl implements TypeHelper {
             return new Field[0];
         }
 
+        // Doing that filter since it's possible to inherit fields with the same name that actually collide when they're all declared as a flat list of a class
+        Field[] localFields = clazz.getDeclaredFields();
+        Field[] inheritedFields = getClassFields(clazz.getSuperclass());
+        Map<String, Field> fieldMap = new HashMap<>();
+        for (Field field : localFields) {
+            fieldMap.put(field.getName(), field);
+        }
+
+        for (Field field : inheritedFields) {
+            String fieldName = field.getName();
+            if (!fieldMap.containsKey(fieldName)) {
+                fieldMap.put(fieldName, field);
+            }
+        }
+
         List<Field> fields = new ArrayList<>();
-        fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
-        fields.addAll(Arrays.asList(getClassFields(clazz.getSuperclass())));
+        fields.addAll(fieldMap.values());
+        Collections.sort(fields, new Comparator<Field>() {
+            @Override
+            public int compare(Field o1, Field o2) {
+                return o1.getName().compareTo(o2.getName());
+            }
+        });
+
         return fields.toArray(new Field[fields.size()]);
     }
 

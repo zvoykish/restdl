@@ -144,7 +144,6 @@ public class Restdl2Java {
             }
 
             sb.append(content);
-            sb.append(ContentGenerator.EOL);
             return sb.toString();
         }
         else {
