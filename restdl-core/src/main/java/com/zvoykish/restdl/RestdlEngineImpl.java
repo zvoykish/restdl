@@ -74,6 +74,9 @@ public class RestdlEngineImpl implements RestdlEngine {
 
                 EndpointInfo endpointInfo = new EndpointInfo();
 
+                endpointInfo.setControllerName(controllerClass.getSimpleName());
+                endpointInfo.setMethodName(method.getName());
+
                 Description description = method.getAnnotation(Description.class);
                 if (description != null && description.value() != null && description.value().length() > 0) {
                     endpointInfo.setDescription(description.value());

@@ -1,6 +1,7 @@
-package com.zvoykish.restdl.java.generators;
+package com.zvoykish.restdl.generator.java.impl;
 
-import com.zvoykish.restdl.java.JavaWriter;
+import com.zvoykish.restdl.generator.ContentGenerator;
+import com.zvoykish.restdl.generator.java.JavaWriter;
 import com.zvoykish.restdl.objects.AnObject;
 import com.zvoykish.restdl.objects.ComplexObject;
 import com.zvoykish.restdl.objects.GenericDeclarationObject;
@@ -17,15 +18,21 @@ import java.util.Map;
  * Time: 20:31
  */
 public class ComplexObjectGenerator implements ContentGenerator<ComplexObject> {
+    private final JavaWriter writer;
+
+    public ComplexObjectGenerator(JavaWriter writer) {
+        this.writer = writer;
+    }
+
     @Override
     public String generateContent(ComplexObject object, String className, Map<Long, TypedObject> typeMap) {
         StringBuilder sb = new StringBuilder();
         String effectiveClassName = getClassName(className, object.getFields());
-        JavaWriter.writeClassStart(sb, effectiveClassName);
+        writer.writeClassStart(sb, effectiveClassName);
         for (AnObject fieldObject : object.getFields()) {
             sb.append('\t');
             sb.append("public ");
-            JavaWriter.writeSignatureClass(sb, fieldObject.getType(), typeMap);
+            writer.writeSignatureClass(sb, fieldObject.getType(), typeMap);
             sb.append(' ');
             sb.append(fieldObject.getName());
             sb.append(EOL_CODE);

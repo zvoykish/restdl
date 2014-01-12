@@ -1,11 +1,11 @@
-package com.zvoykish.restdl.java;
+package com.zvoykish.restdl.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.zvoykish.restdl.java.generators.ClassContentGenerator;
-import com.zvoykish.restdl.java.generators.ContentGenerator;
-import com.zvoykish.restdl.java.generators.EnumObjectContentGenerator;
-import com.zvoykish.restdl.java.generators.PrimitiveObjectContentGenerator;
-import com.zvoykish.restdl.objects.*;
+import com.zvoykish.restdl.generator.java.JavaRestdlGeneratorProvider;
+import com.zvoykish.restdl.objects.AnObject;
+import com.zvoykish.restdl.objects.ApiDetailsResponse;
+import com.zvoykish.restdl.objects.EndpointInfo;
+import com.zvoykish.restdl.objects.TypedObject;
 
 import java.io.File;
 import java.io.IOException;
@@ -25,12 +25,18 @@ import java.util.Map;
  * Date: 1/10/14
  * Time: 09:55
  */
-public class Restdl2Java {
-    private final Map<TypedObjectType, ContentGenerator> contentGenerators = new HashMap<>();
+public class Restdl2Code {
+    private final RestdlGeneratorProvider provider;
 
     public static void main(String[] args) {
+        if (args == null || args.length != 2) {
+            System.out.println(
+                    "Invalid arguments. Please use the following syntax: Restdl2Code [Restdl URL] [Target package for client]");
+            System.exit(1);
+        }
+
         try {
-            new Restdl2Java().run(args[0], args[1]);
+            new Restdl2Code().run(args[0], args[1]);
         }
         catch (Exception e) {
             e.printStackTrace();
@@ -38,10 +44,8 @@ public class Restdl2Java {
         }
     }
 
-    public Restdl2Java() {
-        contentGenerators.put(TypedObjectType.Primitive, new PrimitiveObjectContentGenerator());
-        contentGenerators.put(TypedObjectType.Enum, new EnumObjectContentGenerator());
-        contentGenerators.put(TypedObjectType.Other, new ClassContentGenerator());
+    public Restdl2Code() {
+        provider = new JavaRestdlGeneratorProvider();
     }
 
     public void run(String url, String basePackage) throws IOException {
@@ -100,25 +104,22 @@ public class Restdl2Java {
 
         for (TypedObject type : types) {
             String objectTypeClass = type.getClassName();
-            if (objectTypeClass == null || objectTypeClass.indexOf('.') == -1 ||
-                    objectTypeClass.indexOf('<') > -1 || objectTypeClass.indexOf('[') > -1)
-            {
+            if (provider.isIgnoredType(objectTypeClass)) {
                 System.out.println("Unhandled class: " + type);
                 continue;
             }
 
-            String targetPackage = getPackage(objectTypeClass);
-            String fullClassPath = classNameToPath(objectTypeClass);
+            String fullClassPath = provider.classNameToPath(objectTypeClass);
             Path tempPath = targetPath.resolve(fullClassPath);
             Path fileTargetFolder = tempPath.getParent();
             String className = tempPath.getFileName().toString();
-            String contents = generateClassContents(type, targetPackage, className, typeMap);
+            String contents = provider.generateTypeContents(type, className, typeMap);
             if (contents == null) {
                 System.out.println("Invalid...");
                 continue;
             }
 
-            writeToFile(contents, fileTargetFolder, className + ".java");
+            writeToFile(contents, fileTargetFolder, className + '.' + provider.getClassFileExtension());
         }
 
         return typeMap;
@@ -146,61 +147,26 @@ public class Restdl2Java {
             }
         }
         String fullClassName = targetPackage + '.' + "RestdlApiClient";
-        String fullClassPath = classNameToPath(fullClassName);
+        String fullClassPath = provider.classNameToPath(fullClassName);
         Path tempPath = targetPath.resolve(fullClassPath);
         Path fileTargetFolder = tempPath.getParent();
         String className = tempPath.getFileName().toString();
-        generateInterface(api.getEndpoints(), targetPackage, className, fileTargetFolder, types);
+        generateApiInterface(api.getEndpoints(), targetPackage, className, fileTargetFolder, types);
+        generateApiImplementation(api.getEndpoints(), targetPackage, className + "Impl", fileTargetFolder, types);
     }
 
-    private void generateInterface(List<EndpointInfo> endpoints, String packageName, String className,
-                                   Path targetPath, Map<Long, TypedObject> types) throws IOException
+    private void generateApiImplementation(List<EndpointInfo> endpoints, String packageName, String className,
+                                           Path targetPath, Map<Long, TypedObject> types) throws IOException
     {
-        StringBuilder sb = new StringBuilder();
-        JavaWriter.writePackage(sb, packageName);
-        sb.append("public interface ").append(className).append(" {").append(ContentGenerator.EOL);
-        for (EndpointInfo endpoint : endpoints) {
-            sb.append(ContentGenerator.EOL);
-            sb.append('\t');
-            JavaWriter.writeSignatureClass(sb, endpoint.getReturnType(), types);
-            sb.append(' ');
-            JavaWriter.writeMethodName(sb, endpoint);
-            sb.append('(');
-            sb.append(')');
-            sb.append(ContentGenerator.EOL_CODE);
-        }
-        sb.append('}').append(ContentGenerator.EOL);
-        writeToFile(sb.toString(), targetPath, className + ".java");
+        String content = provider.generateApiImplementation(endpoints, className, packageName, types);
+        writeToFile(content, targetPath, className + '.' + provider.getClassFileExtension());
     }
 
-    private String getPackage(String objectTypeClass) {
-        return objectTypeClass.substring(0, objectTypeClass.lastIndexOf('.'));
-    }
-
-    private String classNameToPath(String targetPackage) {
-        return targetPackage.replace('.', File.separatorChar).replace('$', '_');
-    }
-
-    private String generateClassContents(TypedObject typedObject, String targetPackage, String className,
-                                         Map<Long, TypedObject> typeMap)
+    private void generateApiInterface(List<EndpointInfo> endpoints, String packageName, String className,
+                                      Path targetPath, Map<Long, TypedObject> types) throws IOException
     {
-        TypedObjectType typedObjectType = TypedObjectType.fromString(typedObject.getType());
-        if (contentGenerators.containsKey(typedObjectType)) {
-            ContentGenerator contentGenerator = contentGenerators.get(typedObjectType);
-
-            StringBuilder sb = new StringBuilder();
-            JavaWriter.writePackage(sb, targetPackage);
-            String content = contentGenerator.generateContent(typedObject, className, typeMap);
-            if (content == null) {
-                return null;
-            }
-
-            sb.append(content);
-            return sb.toString();
-        }
-        else {
-            return null;
-        }
+        String content = provider.generateApiInterface(endpoints, className, packageName, types);
+        writeToFile(content, targetPath, className + '.' + provider.getClassFileExtension());
     }
 
     private void writeToFile(String contents, Path folder, String filename) throws IOException {

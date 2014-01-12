@@ -1,5 +1,7 @@
-package com.zvoykish.restdl.java.generators;
+package com.zvoykish.restdl.generator.java.impl;
 
+import com.zvoykish.restdl.generator.ContentGenerator;
+import com.zvoykish.restdl.generator.java.JavaWriter;
 import com.zvoykish.restdl.objects.ComplexObject;
 import com.zvoykish.restdl.objects.ParametrizedComplexObject;
 import com.zvoykish.restdl.objects.TypedObject;
@@ -13,7 +15,11 @@ import java.util.Map;
  * Time: 20:26
  */
 public class ClassContentGenerator implements ContentGenerator<TypedObject> {
-    private ComplexObjectGenerator complexObjectGenerator = new ComplexObjectGenerator();
+    private ComplexObjectGenerator complexObjectGenerator;
+
+    public ClassContentGenerator(JavaWriter writer) {
+        complexObjectGenerator = new ComplexObjectGenerator(writer);
+    }
 
     @Override
     public String generateContent(TypedObject object, String className, Map<Long, TypedObject> typeMap) {

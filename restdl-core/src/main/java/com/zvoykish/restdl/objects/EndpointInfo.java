@@ -24,6 +24,8 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         DELETE
     }
 
+    private String controllerName;
+    private String methodName;
     private String description;
     private HttpMethod httpMethod;
     private String url;
@@ -31,6 +33,22 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
     private TypedObject requestParam;
     private TypedObject returnType;
     private String usedBy;
+
+    public String getControllerName() {
+        return controllerName;
+    }
+
+    public void setControllerName(String controllerName) {
+        this.controllerName = controllerName;
+    }
+
+    public String getMethodName() {
+        return methodName;
+    }
+
+    public void setMethodName(String methodName) {
+        this.methodName = methodName;
+    }
 
     public String getDescription() {
         return description;

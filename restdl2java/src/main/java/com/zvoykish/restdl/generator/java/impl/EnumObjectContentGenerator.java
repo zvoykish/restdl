@@ -1,5 +1,6 @@
-package com.zvoykish.restdl.java.generators;
+package com.zvoykish.restdl.generator.java.impl;
 
+import com.zvoykish.restdl.generator.ContentGenerator;
 import com.zvoykish.restdl.objects.EnumObject;
 import com.zvoykish.restdl.objects.TypedObject;
 

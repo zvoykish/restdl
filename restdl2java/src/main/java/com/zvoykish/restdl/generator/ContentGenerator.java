@@ -1,4 +1,4 @@
-package com.zvoykish.restdl.java.generators;
+package com.zvoykish.restdl.generator;
 
 import com.zvoykish.restdl.objects.TypedObject;
 
