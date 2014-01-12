@@ -15,8 +15,11 @@ public class EnumObject extends BaseTypedObject {
     private String className;
     private List<String> constants;
 
+    protected EnumObject() {
+    }
+
     public EnumObject(String className, List<String> constants) {
-        this.type = "Enum";
+        this.type = TypedObjectType.Enum.name();
         this.className = className;
         this.constants = constants;
     }
@@ -27,10 +30,16 @@ public class EnumObject extends BaseTypedObject {
     }
 
     @Override
-    public void updateReferences(Map<Long, TypedObject> typesById) {
+    public void referenceFields(Map<Long, TypedObject> typesById) {
         // No objects to update
     }
 
+    @Override
+    public void unReferenceFields(Map<Long, TypedObject> typesById) {
+        // No objects to update
+    }
+
+    @Override
     public String getClassName() {
         return className;
     }
@@ -39,12 +48,24 @@ public class EnumObject extends BaseTypedObject {
         return constants;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    public void setConstants(List<String> constants) {
+        this.constants = constants;
+    }
+
     @Override
     public String toString() {
         return "EnumObject{" +
                 "type='" + type + '\'' +
                 ", className='" + className + '\'' +
                 ", constants=" + constants +
-                '}';
+                "} " + super.toString();
     }
 }

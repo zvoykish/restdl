@@ -1,6 +1,9 @@
 package com.zvoykish.restdl.objects;
 
+import com.zvoykish.restdl.TypeHelper;
+
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created with IntelliJ IDEA.
@@ -83,6 +86,35 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
 
     public void setUsedBy(String usedBy) {
         this.usedBy = usedBy;
+    }
+
+    public void updateReferences(Map<Long, TypedObject> typesById) {
+        if (queryParams != null) {
+            for (AnObject queryParam : queryParams) {
+                TypedObject type = queryParam.getType();
+                if (type instanceof TypedObjectWrapper) {
+                    type = ((TypedObjectWrapper) type).getInstance().get();
+                    if (!TypeHelper.INLINE_TYPES.get()) {
+                        type = type.toReference();
+                    }
+                    queryParam.setType(type);
+                }
+            }
+        }
+
+        if (requestParam instanceof TypedObjectWrapper) {
+            requestParam = ((TypedObjectWrapper) requestParam).getInstance().get();
+            if (!TypeHelper.INLINE_TYPES.get()) {
+                requestParam = requestParam.toReference();
+            }
+        }
+
+        if (returnType instanceof TypedObjectWrapper) {
+            returnType = ((TypedObjectWrapper) returnType).getInstance().get();
+            if (!TypeHelper.INLINE_TYPES.get()) {
+                returnType = returnType.toReference();
+            }
+        }
     }
 
     @Override

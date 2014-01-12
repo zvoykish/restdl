@@ -16,6 +16,9 @@ public class AnObject {
     private TypedObject type;
     private String defaultValue;
 
+    protected AnObject() {
+    }
+
     public AnObject(String name, TypedObject type) {
         this(name, type, null);
     }
@@ -34,12 +37,20 @@ public class AnObject {
         return type;
     }
 
+    public String getDefaultValue() {
+        return defaultValue;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public void setType(TypedObject type) {
         this.type = type;
     }
 
-    public String getDefaultValue() {
-        return defaultValue;
+    public void setDefaultValue(String defaultValue) {
+        this.defaultValue = defaultValue;
     }
 
     public String toString() {

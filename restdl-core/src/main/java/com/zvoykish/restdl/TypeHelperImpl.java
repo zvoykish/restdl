@@ -2,6 +2,7 @@ package com.zvoykish.restdl;
 
 import com.zvoykish.restdl.objects.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -28,7 +29,7 @@ public class TypeHelperImpl implements TypeHelper {
     public TypedObject typeToAType(Type paramType, Map<String, AtomicReference<TypedObject>> objects) {
         String className = resolveClassName(paramType);
         if (objects.containsKey(className)) {
-            return getReferencedObject(objects.get(className).get());
+            return new TypedObjectWrapper(objects.get(className));
         }
         objects.put(className, new AtomicReference<TypedObject>());
 
@@ -42,6 +43,13 @@ public class TypeHelperImpl implements TypeHelper {
                         object = typeToAType(targetClass, objects);
                         return getReferencedObject(object);
                     }
+                }
+
+                if (clazz.isArray()) {
+                    Class componentClass = clazz.getComponentType();
+                    TypedObject componentType = typeToAType(componentClass, objects);
+                    object = new ArrayObject(className, componentType);
+                    return getReferencedObject(object);
                 }
 
                 Package pkg = clazz.getPackage();
@@ -74,24 +82,32 @@ public class TypeHelperImpl implements TypeHelper {
 
                 if (Collection.class.isAssignableFrom(rawClass)) {
                     TypedObject innerObject = typeToAType(types[0], objects);
-                    object = new CollectionObject(innerObject);
+                    object = new CollectionObject(Collection.class.getName(), innerObject);
                     return getReferencedObject(object);
                 }
                 else if (Map.class.isAssignableFrom(rawClass)) {
-                    TypedObject innerObject = typeToAType(types[0], objects);
-                    object = new MapObject(innerObject, typeToAType(types[1], objects));
+                    TypedObject keyObject = typeToAType(types[0], objects);
+                    TypedObject valueObject = typeToAType(types[1], objects);
+                    object = new MapObject(Map.class.getName(), keyObject, valueObject);
                     return getReferencedObject(object);
                 }
                 else {
                     TypedObject rawObject = typeToAType(rawType, objects);
+                    if (!(rawObject instanceof ReferencedTypedObject)) {
+                        rawObject = rawObject.toReference();
+                    }
+
                     List<TypedObject> parametrizedObjects = new ArrayList<>();
                     for (Type type : types) {
                         parametrizedObjects.add(typeToAType(type, objects));
                     }
-                    object = new ParametrizedComplexObject(className, (ReferencedTypedObject) rawObject,
-                            parametrizedObjects);
+                    object = new ParametrizedComplexObject(className, rawObject, parametrizedObjects);
                     return getReferencedObject(object);
                 }
+            }
+            else if (paramType instanceof TypeVariable) {
+                object = new GenericDeclarationObject(((TypeVariable) paramType).getName());
+                return getReferencedObject(object);
             }
             else {
                 Class<? extends Type> paramTypeClass = paramType.getClass();
@@ -109,7 +125,13 @@ public class TypeHelperImpl implements TypeHelper {
 
     private String resolveClassName(Type paramType) {
         if (paramType instanceof Class) {
-            return ((Class) paramType).getName();
+            Class paramClass = (Class) paramType;
+            if (paramClass.isArray()) {
+                return paramClass.getCanonicalName();
+            }
+            else {
+                return paramClass.getName();
+            }
         }
         else if (paramType instanceof ParameterizedType) {
             ParameterizedType parameterizedType = (ParameterizedType) paramType;
@@ -165,7 +187,21 @@ public class TypeHelperImpl implements TypeHelper {
         int modifiers = field.getModifiers();
         return !Modifier.isStatic(modifiers) &&
                 !Modifier.isTransient(modifiers) &&
-                !field.isSynthetic();
+                !field.isSynthetic() &&
+                !hasJsonIgnoreAnnotation(field);
+    }
+
+    private boolean hasJsonIgnoreAnnotation(Field field) {
+        Annotation[] annotations = field.getDeclaredAnnotations();
+        for (Annotation annotation : annotations) {
+            Class<? extends Annotation> clazz = annotation.annotationType();
+            if (com.fasterxml.jackson.annotation.JsonIgnore.class.equals(clazz) ||
+                    org.codehaus.jackson.annotate.JsonIgnore.class.equals(clazz))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isInlineTypes() {

@@ -9,6 +9,8 @@ import java.util.Map;
  * Time: 00:50
  */
 @SuppressWarnings("UnusedDeclaration")
+@org.codehaus.jackson.map.annotate.JsonDeserialize(using = TypedObjectCodehausDeserializer.class)
+@com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = TypedObjectFasterXmlDeserializer.class)
 public interface TypedObject {
     long getId();
 
@@ -16,5 +18,11 @@ public interface TypedObject {
 
     ReferencedTypedObject toReference();
 
-    void updateReferences(Map<Long, TypedObject> typesById);
+    void referenceFields(Map<Long, TypedObject> typesById);
+
+    void unReferenceFields(Map<Long, TypedObject> typesById);
+
+    String getClassName();
+
+    String getObjectTypeClass();
 }

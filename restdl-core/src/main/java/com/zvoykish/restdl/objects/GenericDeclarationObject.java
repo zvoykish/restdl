@@ -5,33 +5,33 @@ import java.util.Map;
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
- * Date: 12/1/13
- * Time: 00:51
+ * Date: 1/11/14
+ * Time: 21:55
  */
 @SuppressWarnings("UnusedDeclaration")
-public class PrimitiveObject extends BaseTypedObject {
+public class GenericDeclarationObject extends BaseTypedObject {
     private String className;
 
-    protected PrimitiveObject() {
+    protected GenericDeclarationObject() {
     }
 
-    public PrimitiveObject(String className) {
+    public GenericDeclarationObject(String className) {
         this.className = className;
     }
 
     @Override
     public String getType() {
-        return TypedObjectType.Primitive.name();
+        return TypedObjectType.GenericDeclaration.name();
     }
 
     @Override
     public void referenceFields(Map<Long, TypedObject> typesById) {
-        // No objects to update
+        // Nothing to do on such objects...
     }
 
     @Override
     public void unReferenceFields(Map<Long, TypedObject> typesById) {
-        // No objects to update
+        // Nothing to do on such objects...
     }
 
     @Override
@@ -45,9 +45,8 @@ public class PrimitiveObject extends BaseTypedObject {
 
     @Override
     public String toString() {
-        return "PrimitiveObject{" +
+        return "GenericDeclarationObject{" +
                 "className='" + className + '\'' +
                 "} " + super.toString();
     }
 }
-

@@ -11,10 +11,15 @@ import java.util.Map;
 @SuppressWarnings("UnusedDeclaration")
 public class CollectionObject extends BaseTypedObject {
     private String type;
+    private String className;
     private TypedObject elementType;
 
-    public CollectionObject(TypedObject elementType) {
-        this.type = "Collection";
+    protected CollectionObject() {
+    }
+
+    public CollectionObject(String className, TypedObject elementType) {
+        this.className = className;
+        this.type = TypedObjectType.Collection.name();
         this.elementType = elementType;
     }
 
@@ -27,15 +32,42 @@ public class CollectionObject extends BaseTypedObject {
         return elementType;
     }
 
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setElementType(TypedObject elementType) {
+        this.elementType = elementType;
+    }
+
     @Override
-    public void updateReferences(Map<Long, TypedObject> typesById) {
+    public void referenceFields(Map<Long, TypedObject> typesById) {
+        if (elementType instanceof TypedObjectWrapper) {
+            elementType = ((TypedObjectWrapper) elementType).getInstance().get().toReference();
+        }
+    }
+
+    @Override
+    public void unReferenceFields(Map<Long, TypedObject> typesById) {
         if (elementType instanceof ReferencedTypedObject) {
             elementType = typesById.get(elementType.getId());
         }
     }
 
     @Override
+    public String getClassName() {
+        return className;
+    }
+
+    public void setClassName(String className) {
+        this.className = className;
+    }
+
+    @Override
     public String toString() {
-        return "Collection: " + elementType;
+        return "CollectionObject{" +
+                "type='" + type + '\'' +
+                ", elementType=" + elementType +
+                "} " + super.toString();
     }
 }

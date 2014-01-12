@@ -17,6 +17,9 @@ public class ApiDetailsResponse {
     private List<EndpointInfo> endpoints;
     private List<TypedObject> types;
 
+    protected ApiDetailsResponse() {
+    }
+
     public ApiDetailsResponse(List<EndpointInfo> endpoints, List<TypedObject> types) {
         this.endpoints = endpoints;
         this.types = types;

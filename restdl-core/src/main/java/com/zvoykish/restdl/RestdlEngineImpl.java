@@ -35,10 +35,26 @@ public class RestdlEngineImpl implements RestdlEngine {
             Map<String, AtomicReference<TypedObject>> objects = new HashMap<>();
             List<EndpointInfo> methods = generateEndpointInfo(objects);
             List<TypedObject> types = generateObjectInfo(objects);
+            updateReferences(methods, types);
             return new ApiDetailsResponse(methods, types);
         }
         finally {
             TypeHelper.INLINE_TYPES.remove();
+        }
+    }
+
+    private void updateReferences(List<EndpointInfo> methods, List<TypedObject> types) {
+        Map<Long, TypedObject> typesById = new HashMap<>();
+        for (TypedObject type : types) {
+            typesById.put(type.getId(), type);
+        }
+
+        for (TypedObject type : types) {
+            type.referenceFields(typesById);
+        }
+
+        for (EndpointInfo method : methods) {
+            method.updateReferences(typesById);
         }
     }
 
@@ -122,14 +138,6 @@ public class RestdlEngineImpl implements RestdlEngine {
             }
         });
 
-        Map<Long, TypedObject> typesById = new HashMap<>();
-        for (TypedObject type : types) {
-            typesById.put(type.getId(), type);
-        }
-
-        for (TypedObject type : types) {
-            type.updateReferences(typesById);
-        }
         return types;
     }
 }
