@@ -1,6 +1,10 @@
 package com.zvoykish.restdl.java.generators;
 
-import com.zvoykish.restdl.objects.*;
+import com.zvoykish.restdl.java.JavaWriter;
+import com.zvoykish.restdl.objects.AnObject;
+import com.zvoykish.restdl.objects.ComplexObject;
+import com.zvoykish.restdl.objects.GenericDeclarationObject;
+import com.zvoykish.restdl.objects.TypedObject;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,11 +21,11 @@ public class ComplexObjectGenerator implements ContentGenerator<ComplexObject> {
     public String generateContent(ComplexObject object, String className, Map<Long, TypedObject> typeMap) {
         StringBuilder sb = new StringBuilder();
         String effectiveClassName = getClassName(className, object.getFields());
-        sb.append("public class ").append(effectiveClassName).append(" {").append(EOL);
+        JavaWriter.writeClassStart(sb, effectiveClassName);
         for (AnObject fieldObject : object.getFields()) {
             sb.append('\t');
             sb.append("public ");
-            sb.append(resolveType(fieldObject, typeMap));
+            JavaWriter.writeSignatureClass(sb, fieldObject.getType(), typeMap);
             sb.append(' ');
             sb.append(fieldObject.getName());
             sb.append(EOL_CODE);
@@ -54,25 +58,4 @@ public class ComplexObjectGenerator implements ContentGenerator<ComplexObject> {
         return sb.toString();
     }
 
-    private String resolveType(AnObject fieldObject, Map<Long, TypedObject> typeMap) {
-        TypedObject type = fieldObject.getType();
-        if (type instanceof CollectionObject) {
-            TypedObject elementType = ((CollectionObject) type).getElementType();
-            if (elementType != null) {
-                String elementClassName = typeMap.get(elementType.getId()).getClassName();
-                return type.getClassName() + '<' + elementClassName + '>';
-            }
-        }
-        else if (type instanceof MapObject) {
-            TypedObject keyType = ((MapObject) type).getKeys();
-            TypedObject valueType = ((MapObject) type).getValues();
-            if (keyType != null && valueType != null) {
-                String keyClassName = typeMap.get(keyType.getId()).getClassName();
-                String valueClassName = typeMap.get(valueType.getId()).getClassName();
-                return type.getClassName() + '<' + keyClassName + ", " + valueClassName + '>';
-            }
-        }
-
-        return type.getClassName().replace('$', '_');
-    }
 }

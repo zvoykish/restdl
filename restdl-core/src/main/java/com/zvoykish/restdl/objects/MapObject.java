@@ -12,17 +12,17 @@ import java.util.Map;
 public class MapObject extends BaseTypedObject {
     private String type;
     private String className;
-    private TypedObject keys;
-    private TypedObject values;
+    private TypedObject keyType;
+    private TypedObject valueType;
 
     protected MapObject() {
     }
 
-    public MapObject(String className, TypedObject keys, TypedObject values) {
+    public MapObject(String className, TypedObject keyType, TypedObject valueType) {
         this.className = className;
         this.type = "Map";
-        this.keys = keys;
-        this.values = values;
+        this.keyType = keyType;
+        this.valueType = valueType;
     }
 
     @Override
@@ -30,44 +30,44 @@ public class MapObject extends BaseTypedObject {
         return type;
     }
 
-    public TypedObject getKeys() {
-        return keys;
+    public TypedObject getKeyType() {
+        return keyType;
     }
 
-    public TypedObject getValues() {
-        return values;
+    public TypedObject getValueType() {
+        return valueType;
     }
 
     public void setType(String type) {
         this.type = type;
     }
 
-    public void setKeys(TypedObject keys) {
-        this.keys = keys;
+    public void setKeyType(TypedObject keyType) {
+        this.keyType = keyType;
     }
 
-    public void setValues(TypedObject values) {
-        this.values = values;
+    public void setValueType(TypedObject valueType) {
+        this.valueType = valueType;
     }
 
     @Override
     public void referenceFields(Map<Long, TypedObject> typesById) {
-        if (keys instanceof TypedObjectWrapper) {
-            keys = ((TypedObjectWrapper) keys).getInstance().get().toReference();
+        if (keyType instanceof TypedObjectWrapper) {
+            keyType = ((TypedObjectWrapper) keyType).getInstance().get().toReference();
         }
 
-        if (values instanceof TypedObjectWrapper) {
-            values = ((TypedObjectWrapper) values).getInstance().get().toReference();
+        if (valueType instanceof TypedObjectWrapper) {
+            valueType = ((TypedObjectWrapper) valueType).getInstance().get().toReference();
         }
     }
 
     @Override
     public void unReferenceFields(Map<Long, TypedObject> typesById) {
-        if (keys instanceof ReferencedTypedObject) {
-            keys = typesById.get(keys.getId());
+        if (keyType instanceof ReferencedTypedObject) {
+            keyType = typesById.get(keyType.getId());
         }
-        if (values instanceof ReferencedTypedObject) {
-            values = typesById.get(values.getId());
+        if (valueType instanceof ReferencedTypedObject) {
+            valueType = typesById.get(valueType.getId());
         }
     }
 
@@ -84,8 +84,8 @@ public class MapObject extends BaseTypedObject {
     public String toString() {
         return "MapObject{" +
                 "type='" + type + '\'' +
-                ", keys=" + keys +
-                ", values=" + values +
+                ", keys=" + keyType +
+                ", values=" + valueType +
                 "} " + super.toString();
     }
 }
