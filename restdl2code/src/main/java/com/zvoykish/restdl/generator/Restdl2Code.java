@@ -75,13 +75,25 @@ public class Restdl2Code {
 
             Path targetPath = Paths.get(baseTargetDir);
             Map<Long, TypedObject> types = generateTypes(api, targetPath);
-            generateMethods(api, types, targetPath, basePackage);
+            generateMethods(api, types);
+            generateApi(api, types, targetPath, basePackage);
         }
         finally {
             if (is != null) {
                 is.close();
             }
         }
+    }
+
+    private void generateApi(ApiDetailsResponse api, Map<Long, TypedObject> types, Path targetPath,
+                             String targetPackage) throws IOException
+    {
+        String fullClassPath = provider.classNameToPath(targetPackage + '.' + "RestdlApiClient");
+        Path tempPath = targetPath.resolve(fullClassPath);
+        Path fileTargetFolder = tempPath.getParent();
+        String className = tempPath.getFileName().toString();
+        generateApiInterface(api.getEndpoints(), targetPackage, className, fileTargetFolder, types);
+        generateApiImplementation(api.getEndpoints(), targetPackage, className + "Impl", fileTargetFolder, types);
     }
 
     private Map<Long, TypedObject> generateTypes(ApiDetailsResponse api, Path targetPath) throws IOException {
@@ -125,9 +137,7 @@ public class Restdl2Code {
         return typeMap;
     }
 
-    private void generateMethods(ApiDetailsResponse api, Map<Long, TypedObject> types, Path targetPath,
-                                 String targetPackage) throws IOException
-    {
+    private void generateMethods(ApiDetailsResponse api, Map<Long, TypedObject> types) throws IOException {
         for (EndpointInfo endpointInfo : api.getEndpoints()) {
             TypedObject requestParam = endpointInfo.getRequestParam();
             if (requestParam != null) {
@@ -146,13 +156,6 @@ public class Restdl2Code {
                 }
             }
         }
-        String fullClassName = targetPackage + '.' + "RestdlApiClient";
-        String fullClassPath = provider.classNameToPath(fullClassName);
-        Path tempPath = targetPath.resolve(fullClassPath);
-        Path fileTargetFolder = tempPath.getParent();
-        String className = tempPath.getFileName().toString();
-        generateApiInterface(api.getEndpoints(), targetPackage, className, fileTargetFolder, types);
-        generateApiImplementation(api.getEndpoints(), targetPackage, className + "Impl", fileTargetFolder, types);
     }
 
     private void generateApiImplementation(List<EndpointInfo> endpoints, String packageName, String className,

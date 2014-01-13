@@ -1,0 +1,6 @@
+public enum $className {
+#foreach( $constant in $constants )
+    $constant#if( $foreach.hasNext ),#end
+
+#end
+}

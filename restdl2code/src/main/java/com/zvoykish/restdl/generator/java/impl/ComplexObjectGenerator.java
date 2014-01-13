@@ -6,7 +6,11 @@ import com.zvoykish.restdl.objects.AnObject;
 import com.zvoykish.restdl.objects.ComplexObject;
 import com.zvoykish.restdl.objects.GenericDeclarationObject;
 import com.zvoykish.restdl.objects.TypedObject;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,20 +30,16 @@ public class ComplexObjectGenerator implements ContentGenerator<ComplexObject> {
 
     @Override
     public String generateContent(ComplexObject object, String className, Map<Long, TypedObject> typeMap) {
-        StringBuilder sb = new StringBuilder();
-        String effectiveClassName = getClassName(className, object.getFields());
-        writer.writeClassStart(sb, effectiveClassName);
-        for (AnObject fieldObject : object.getFields()) {
-            sb.append('\t');
-            sb.append("public ");
-            writer.writeSignatureClass(sb, fieldObject.getType(), typeMap);
-            sb.append(' ');
-            sb.append(fieldObject.getName());
-            sb.append(EOL_CODE);
-        }
-
-        sb.append('}').append(EOL);
-        return sb.toString();
+        Template template = Velocity.getTemplate("templates/object_class.vm");
+        StringWriter stringWriter = new StringWriter();
+        VelocityContext context = new VelocityContext();
+        List<AnObject> fields = object.getFields();
+        context.put("className", getClassName(className, fields));
+        context.put("fields", fields);
+        context.put("writer", writer);
+        context.put("types", typeMap);
+        template.merge(context, stringWriter);
+        return stringWriter.toString();
     }
 
     private String getClassName(String className, List<AnObject> fields) {

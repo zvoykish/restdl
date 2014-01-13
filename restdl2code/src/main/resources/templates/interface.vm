@@ -1,0 +1,9 @@
+package $packageName;
+
+public interface $interfaceName {
+
+#foreach($endpoint in $endpoints)
+    public $writer.resolveTypeName($endpoint.returnType, $types) $endpoint.generateEndpointName()();
+
+#end
+}

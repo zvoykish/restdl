@@ -3,7 +3,11 @@ package com.zvoykish.restdl.generator.java.impl;
 import com.zvoykish.restdl.generator.ContentGenerator;
 import com.zvoykish.restdl.objects.PrimitiveObject;
 import com.zvoykish.restdl.objects.TypedObject;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -31,9 +35,11 @@ public class PrimitiveObjectContentGenerator implements ContentGenerator<Primiti
             }
         }
 
-        StringBuilder sb = new StringBuilder();
-        sb.append("public class ").append(className).append(" {").append(EOL_CODE);
-        sb.append('}').append(EOL_CODE);
-        return sb.toString();
+        Template template = Velocity.getTemplate("templates/object_primitive.vm");
+        StringWriter stringWriter = new StringWriter();
+        VelocityContext context = new VelocityContext();
+        context.put("className", className);
+        template.merge(context, stringWriter);
+        return stringWriter.toString();
     }
 }

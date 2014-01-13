@@ -135,6 +135,32 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         }
     }
 
+    public String generateEndpointName() {
+        String[] tokens = url.split("/");
+        if (tokens.length == 0) {
+            return methodName + "Of" + controllerName;
+        }
+
+        EndpointInfo.HttpMethod method = httpMethod;
+        if (method == null) {
+            method = EndpointInfo.HttpMethod.GET;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        String methodName = method.name().toLowerCase();
+        sb.append(methodName);
+        for (String token : tokens) {
+            token = token.trim().replaceAll("[^a-zA-Z]", "");
+            if (!token.isEmpty()) {
+                sb.append(Character.toUpperCase(token.charAt(0)));
+                if (token.length() > 1) {
+                    sb.append(token.substring(1).toLowerCase());
+                }
+            }
+        }
+        return sb.toString();
+    }
+
     @Override
     public int compareTo(EndpointInfo o) {
         return (getHttpMethod() + getUrl()).compareTo(o.getHttpMethod() + o.getUrl());

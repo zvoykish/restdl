@@ -15,7 +15,7 @@
     <modules>
         <module>restdl-core</module>
         <module>restdl-spring</module>
-        <module>restdl2java</module>
+        <module>restdl2code</module>
     </modules>
 
     <packaging>pom</packaging>
@@ -51,6 +51,12 @@
                 <groupId>com.zvoykish</groupId>
                 <artifactId>restdl-core</artifactId>
                 <version>${project.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.apache.velocity</groupId>
+                <artifactId>velocity</artifactId>
+                <version>1.7</version>
             </dependency>
 
             <dependency>

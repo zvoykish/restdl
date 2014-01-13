@@ -12,7 +12,4 @@ import java.util.Map;
  */
 public interface ContentGenerator<T extends TypedObject> {
     String generateContent(T object, String className, Map<Long, TypedObject> typeMap);
-
-    public static final String EOL = "\n";
-    public static final String EOL_CODE = ';' + EOL;
 }

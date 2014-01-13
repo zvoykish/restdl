@@ -1,0 +1,7 @@
+public class $className {
+
+#foreach($field in $fields)
+    public $writer.resolveTypeName($field.type, $types) $field.name;
+#end
+
+}

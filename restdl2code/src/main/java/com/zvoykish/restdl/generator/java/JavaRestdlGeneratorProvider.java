@@ -8,8 +8,12 @@ import com.zvoykish.restdl.generator.java.impl.PrimitiveObjectContentGenerator;
 import com.zvoykish.restdl.objects.EndpointInfo;
 import com.zvoykish.restdl.objects.TypedObject;
 import com.zvoykish.restdl.objects.TypedObjectType;
+import org.apache.velocity.Template;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.Velocity;
 
 import java.io.File;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +34,12 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
         contentGeneratorMap.put(TypedObjectType.Primitive, new PrimitiveObjectContentGenerator());
         contentGeneratorMap.put(TypedObjectType.Enum, new EnumObjectContentGenerator());
         contentGeneratorMap.put(TypedObjectType.Other, new ClassContentGenerator(writer));
+
+        java.util.Properties p = new java.util.Properties();
+        p.setProperty("resource.loader", "class");
+        p.setProperty("class.resource.loader.class",
+                "org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader");
+        Velocity.init(p);
     }
 
     @Override
@@ -57,50 +67,33 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
     public String generateApiInterface(List<EndpointInfo> endpoints, String className, String packageName,
                                        Map<Long, TypedObject> typeMap)
     {
-        StringBuilder sb = new StringBuilder();
-
-        writer.writePackage(sb, packageName);
-        sb.append("public interface ").append(className).append(" {").append(ContentGenerator.EOL);
-        for (EndpointInfo endpoint : endpoints) {
-            sb.append(ContentGenerator.EOL);
-            sb.append('\t');
-            writer.writeSignatureClass(sb, endpoint.getReturnType(), typeMap);
-            sb.append(' ');
-            writer.writeMethodName(sb, endpoint);
-            sb.append('(');
-            sb.append(')');
-            sb.append(ContentGenerator.EOL_CODE);
-        }
-        sb.append('}').append(ContentGenerator.EOL);
-
-        return sb.toString();
+        Template template = Velocity.getTemplate("templates/interface.vm");
+        StringWriter stringWriter = new StringWriter();
+        VelocityContext context = new VelocityContext();
+        context.put("packageName", packageName);
+        context.put("interfaceName", className);
+        context.put("endpoints", endpoints);
+        context.put("writer", writer);
+        context.put("types", typeMap);
+        template.merge(context, stringWriter);
+        return stringWriter.toString();
     }
 
     @Override
     public String generateApiImplementation(List<EndpointInfo> endpoints, String className, String packageName,
                                             Map<Long, TypedObject> typeMap)
     {
-        StringBuilder sb = new StringBuilder();
-
-        writer.writePackage(sb, packageName);
-        String interfaceName = className.substring(0, className.length() - 4);
-        sb.append("public class ").append(className).append(" implements ").append(interfaceName).append(" {")
-                .append(ContentGenerator.EOL);
-        for (EndpointInfo endpoint : endpoints) {
-            sb.append(ContentGenerator.EOL);
-            sb.append('\t');
-            sb.append("public ");
-            writer.writeSignatureClass(sb, endpoint.getReturnType(), typeMap);
-            sb.append(' ');
-            writer.writeMethodName(sb, endpoint);
-            sb.append('(');
-            sb.append(')');
-            sb.append("{}");
-            sb.append(ContentGenerator.EOL);
-        }
-        sb.append('}').append(ContentGenerator.EOL);
-
-        return sb.toString();
+        Template template = Velocity.getTemplate("templates/class.vm");
+        StringWriter stringWriter = new StringWriter();
+        VelocityContext context = new VelocityContext();
+        context.put("packageName", packageName);
+        context.put("superInterfaces", new String[]{className.substring(0, className.length() - 4)});
+        context.put("className", className);
+        context.put("endpoints", endpoints);
+        context.put("writer", writer);
+        context.put("types", typeMap);
+        template.merge(context, stringWriter);
+        return stringWriter.toString();
     }
 
     @Override
@@ -122,15 +115,18 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
         TypedObjectType typedObjectType = TypedObjectType.fromString(typedObject.getType());
         ContentGenerator<TypedObject> contentGenerator = contentGeneratorMap.get(typedObjectType);
         if (contentGenerator != null) {
-            StringBuilder sb = new StringBuilder();
-            writer.writePackage(sb, targetPackage);
             String content = contentGenerator.generateContent(typedObject, className, typeMap);
             if (content == null) {
                 return null;
             }
 
-            sb.append(content);
-            return sb.toString();
+            Template template = Velocity.getTemplate("templates/package_with_contents.vm");
+            StringWriter stringWriter = new StringWriter();
+            VelocityContext context = new VelocityContext();
+            context.put("packageName", targetPackage);
+            context.put("contents", content);
+            template.merge(context, stringWriter);
+            return stringWriter.toString();
         }
         else {
             return null;

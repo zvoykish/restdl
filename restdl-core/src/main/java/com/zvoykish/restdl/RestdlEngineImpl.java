@@ -36,7 +36,12 @@ public class RestdlEngineImpl implements RestdlEngine {
             List<EndpointInfo> methods = generateEndpointInfo(objects);
             List<TypedObject> types = generateObjectInfo(objects);
             updateReferences(methods, types);
-            return new ApiDetailsResponse(methods, types);
+            ApiDetailsResponse response = new ApiDetailsResponse(methods, types);
+            response.calculateMd5();
+            return response;
+        }
+        catch (Exception e) {
+            throw new RuntimeException(e);
         }
         finally {
             TypeHelper.INLINE_TYPES.remove();
