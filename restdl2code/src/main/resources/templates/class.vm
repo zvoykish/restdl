@@ -1,10 +1,36 @@
 package $packageName;
 
-public class $className#if($superInterfaces) implements #foreach($interface in $superInterfaces)$interface#if( $foreach.hasNext ),#end#end#end{
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
+import org.springframework.web.client.RestTemplate;
+
+@Component
+public class $className#if($superInterfaces) implements #foreach($interface in $superInterfaces)$interface#if( $foreach.hasNext ),#end#end#end {
+
+    @Autowired
+    private $clientFactoryClassName clientFactory;
 
 #foreach($endpoint in $endpoints)
-    public $writer.resolveTypeName($endpoint.returnType, $types) $endpoint.generateEndpointName()() {
-        // TODO: Impl. :-)
+#if($endpoint.requestParam)
+    #set($requestParamName = "$writer.resolveTypeName($endpoint.requestParam, $types)")
+#end
+#set($returnTypeName = "$writer.resolveTypeName($endpoint.returnType, $types)")
+#set($returnTypeNameStr = "$endpoint.returnType.getClassName()" + ".class")
+    #parse("/templates/method_base.vm") {
+        RestTemplate restTemplate = clientFactory.getRestTemplate();
+        String baseUrl = clientFactory.getBaseUrl();
+#if($endpoint.httpMethod == "POST")
+        ResponseEntity<$returnTypeName> response = restTemplate.postForEntity(baseUrl + "$endpoint.url", requestObject, $returnTypeNameStr);
+        return response.getBody();
+#elseif($endpoint.httpMethod == "PUT")
+        restTemplate.put(baseUrl + "$endpoint.url", requestObject);
+#elseif($endpoint.httpMethod == "DELETE")
+        restTemplate.delete(baseUrl + "$endpoint.url");
+#else
+        ResponseEntity<$returnTypeName> response = restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
+        return response.getBody();
+#end
     }
 
 #end

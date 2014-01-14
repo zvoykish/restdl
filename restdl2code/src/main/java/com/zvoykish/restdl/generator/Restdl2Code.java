@@ -92,6 +92,7 @@ public class Restdl2Code {
         Path tempPath = targetPath.resolve(fullClassPath);
         Path fileTargetFolder = tempPath.getParent();
         String className = tempPath.getFileName().toString();
+        generateClientFactory(targetPackage, fileTargetFolder);
         generateApiInterface(api.getEndpoints(), targetPackage, className, fileTargetFolder, types);
         generateApiImplementation(api.getEndpoints(), targetPackage, className + "Impl", fileTargetFolder, types);
     }
@@ -156,6 +157,12 @@ public class Restdl2Code {
                 }
             }
         }
+    }
+
+    private void generateClientFactory(String targetPackage, Path fileTargetFolder) throws IOException {
+        HttpClientFactoryInterface clientFactory = provider.generateHttpClientFactory(targetPackage);
+        String filename = clientFactory.getClassName() + '.' + provider.getClassFileExtension();
+        writeToFile(clientFactory.getContents(), fileTargetFolder, filename);
     }
 
     private void generateApiImplementation(List<EndpointInfo> endpoints, String packageName, String className,

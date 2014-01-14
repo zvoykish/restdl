@@ -1,6 +1,8 @@
 package com.zvoykish.restdl.generator.java;
 
 import com.zvoykish.restdl.generator.ContentGenerator;
+import com.zvoykish.restdl.generator.HttpClientFactoryInterface;
+import com.zvoykish.restdl.generator.HttpClientFactoryInterfaceImpl;
 import com.zvoykish.restdl.generator.RestdlGeneratorProvider;
 import com.zvoykish.restdl.generator.java.impl.ClassContentGenerator;
 import com.zvoykish.restdl.generator.java.impl.EnumObjectContentGenerator;
@@ -25,6 +27,7 @@ import java.util.Map;
  * Time: 22:50
  */
 public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
+    public static final String CLASS_NAME_REST_TEMPLATE_FACTORY = "RestdlRestTemplateFactory";
     private final JavaWriter writer;
     private final Map<TypedObjectType, ContentGenerator> contentGeneratorMap;
 
@@ -83,10 +86,14 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
     public String generateApiImplementation(List<EndpointInfo> endpoints, String className, String packageName,
                                             Map<Long, TypedObject> typeMap)
     {
+        // TODO 1: Void return types (and delete/put requests that do not return any value)
+        // TODO 2: Generic request types
+        // TODO 3: Path params (need to accept them as method parameters and replace the params in the URL string)
         Template template = Velocity.getTemplate("templates/class.vm");
         StringWriter stringWriter = new StringWriter();
         VelocityContext context = new VelocityContext();
         context.put("packageName", packageName);
+        context.put("clientFactoryClassName", CLASS_NAME_REST_TEMPLATE_FACTORY);
         context.put("superInterfaces", new String[]{className.substring(0, className.length() - 4)});
         context.put("className", className);
         context.put("endpoints", endpoints);
@@ -94,6 +101,17 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
         context.put("types", typeMap);
         template.merge(context, stringWriter);
         return stringWriter.toString();
+    }
+
+    @Override
+    public HttpClientFactoryInterface generateHttpClientFactory(String packageName) {
+        Template template = Velocity.getTemplate("templates/resttemplate_factory.vm");
+        StringWriter stringWriter = new StringWriter();
+        VelocityContext context = new VelocityContext();
+        context.put("packageName", packageName);
+        context.put("factoryInterfaceName", CLASS_NAME_REST_TEMPLATE_FACTORY);
+        template.merge(context, stringWriter);
+        return new HttpClientFactoryInterfaceImpl(CLASS_NAME_REST_TEMPLATE_FACTORY, stringWriter.toString());
     }
 
     @Override

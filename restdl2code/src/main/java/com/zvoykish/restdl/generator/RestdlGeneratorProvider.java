@@ -23,6 +23,8 @@ public interface RestdlGeneratorProvider {
     String generateApiImplementation(List<EndpointInfo> endpoints, String className, String packageName,
                                      Map<Long, TypedObject> typeMap);
 
+    HttpClientFactoryInterface generateHttpClientFactory(String packageName);
+
     String getClassFileExtension();
 
     String classNameToPath(String objectTypeClass);
