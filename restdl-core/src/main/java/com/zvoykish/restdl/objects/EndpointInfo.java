@@ -2,6 +2,7 @@ package com.zvoykish.restdl.objects;
 
 import com.zvoykish.restdl.TypeHelper;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,13 @@ import java.util.Map;
 @com.fasterxml.jackson.databind.annotation.JsonSerialize(
         include = com.fasterxml.jackson.databind.annotation.JsonSerialize.Inclusion.NON_NULL)
 public class EndpointInfo implements Comparable<EndpointInfo> {
+    private static final List<String> VOID_TYPES = new ArrayList<>();
+
+    static {
+        VOID_TYPES.add("void");
+        VOID_TYPES.add("java.lang.Void");
+    }
+
     public enum HttpMethod {
         GET,
         POST,
@@ -159,6 +167,12 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
             }
         }
         return sb.toString();
+    }
+
+    @org.codehaus.jackson.annotate.JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    public boolean hasReturnType() {
+        return returnType != null && !VOID_TYPES.contains(returnType.getClassName());
     }
 
     @Override

@@ -7,6 +7,7 @@ public interface $interfaceName {
     #set($requestParamName = "$writer.resolveTypeName($endpoint.requestParam, $types)")
 #end
 #set($returnTypeName = "$writer.resolveTypeName($endpoint.returnType, $types)")
+#set($hasReturnType = "$endpoint.hasReturnType()")
     #parse("/templates/method_base.vm");
 
 #end

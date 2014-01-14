@@ -14,13 +14,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Time: 01:10
  */
 public class TypeHelperImpl implements TypeHelper {
-    private static final List<String> VOID_TYPES = new ArrayList<>();
     private RestdlAdapter adapter;
-
-    static {
-        VOID_TYPES.add("void");
-        VOID_TYPES.add("java.lang.Void");
-    }
 
     public TypeHelperImpl(RestdlAdapter adapter) {
         this.adapter = adapter;

@@ -1,6 +1,8 @@
 package $packageName;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -17,19 +19,34 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
 #end
 #set($returnTypeName = "$writer.resolveTypeName($endpoint.returnType, $types)")
 #set($returnTypeNameStr = "$endpoint.returnType.getClassName()" + ".class")
+#set($hasReturnType = "$endpoint.hasReturnType()")
     #parse("/templates/method_base.vm") {
         RestTemplate restTemplate = clientFactory.getRestTemplate();
         String baseUrl = clientFactory.getBaseUrl();
 #if($endpoint.httpMethod == "POST")
         ResponseEntity<$returnTypeName> response = restTemplate.postForEntity(baseUrl + "$endpoint.url", requestObject, $returnTypeNameStr);
+#if($hasReturnType)
         return response.getBody();
+#end
 #elseif($endpoint.httpMethod == "PUT")
+#if($hasReturnType)
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.PUT, new HttpEntity<>(requestObject), $returnTypeNameStr);
+        return response.getBody();
+#else
         restTemplate.put(baseUrl + "$endpoint.url", requestObject);
+#end
 #elseif($endpoint.httpMethod == "DELETE")
+#if($hasReturnType)
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.DELETE, new HttpEntity<>(requestObject), $returnTypeNameStr);
+        return response.getBody();
+#else
         restTemplate.delete(baseUrl + "$endpoint.url");
+#end
 #else
         ResponseEntity<$returnTypeName> response = restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
+#if($hasReturnType)
         return response.getBody();
+#end
 #end
     }
 
