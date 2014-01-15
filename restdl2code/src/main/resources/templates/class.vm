@@ -15,20 +15,22 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
 
 #foreach($endpoint in $endpoints)
 #if($endpoint.requestParam)
-    #set($requestParamName = "$writer.resolveTypeName($endpoint.requestParam, $types)")
+    #set($requestParamName = $writer.resolveTypeName($endpoint.requestParam, $types))
 #end
-#set($returnTypeName = "$writer.resolveTypeName($endpoint.returnType, $types)")
-#set($returnTypeNameStr = "$endpoint.returnType.getClassName()" + ".class")
-#set($hasReturnType = "$endpoint.hasReturnType()")
+#set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
+#set($returnTypeNameStr = "new org.springframework.core.ParameterizedTypeReference<$endpoint.returnType.getClassName()>{}")
+#set($hasReturnType = $endpoint.hasReturnType())
     #parse("/templates/method_base.vm") {
         RestTemplate restTemplate = clientFactory.getRestTemplate();
         String baseUrl = clientFactory.getBaseUrl();
 #if($endpoint.httpMethod == "POST")
+## POST
         ResponseEntity<$returnTypeName> response = restTemplate.postForEntity(baseUrl + "$endpoint.url", requestObject, $returnTypeNameStr);
 #if($hasReturnType)
         return response.getBody();
 #end
 #elseif($endpoint.httpMethod == "PUT")
+## PUT
 #if($hasReturnType)
         ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.PUT, new HttpEntity<>(requestObject), $returnTypeNameStr);
         return response.getBody();
@@ -36,6 +38,7 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
         restTemplate.put(baseUrl + "$endpoint.url", requestObject);
 #end
 #elseif($endpoint.httpMethod == "DELETE")
+## DELETE
 #if($hasReturnType)
         ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.DELETE, new HttpEntity<>(requestObject), $returnTypeNameStr);
         return response.getBody();
@@ -43,9 +46,12 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
         restTemplate.delete(baseUrl + "$endpoint.url");
 #end
 #else
-        ResponseEntity<$returnTypeName> response = restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
+## GET (also default in case method type is missing...)
 #if($hasReturnType)
+        ResponseEntity<$returnTypeName> response = restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
         return response.getBody();
+#else
+        restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
 #end
 #end
     }

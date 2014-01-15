@@ -4,10 +4,10 @@ public interface $interfaceName {
 
 #foreach($endpoint in $endpoints)
 #if($endpoint.requestParam)
-    #set($requestParamName = "$writer.resolveTypeName($endpoint.requestParam, $types)")
+    #set($requestParamName = $writer.resolveTypeName($endpoint.requestParam, $types))
 #end
-#set($returnTypeName = "$writer.resolveTypeName($endpoint.returnType, $types)")
-#set($hasReturnType = "$endpoint.hasReturnType()")
+#set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
+#set($hasReturnType = $endpoint.hasReturnType())
     #parse("/templates/method_base.vm");
 
 #end
