@@ -114,6 +114,10 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         this.usedBy = usedBy;
     }
 
+    public String getHttpMethodDisplayName() {
+        return httpMethod != null ? httpMethod.name() : HttpMethod.GET.name();
+    }
+
     public void updateReferences(Map<Long, TypedObject> typesById) {
         if (queryParams != null) {
             for (AnObject queryParam : queryParams) {
