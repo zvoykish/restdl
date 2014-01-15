@@ -1,10 +1,22 @@
+#if($endpoint.requestParam)
+    #set($requestParamName = $writer.resolveTypeName($endpoint.requestParam, $types))
+    #set($exchangeParam = "new HttpEntity<>(requestObject)")
+#else
+    #set($exchangeParam = "null")
+#end
+#set($hasReturnType = $endpoint.hasReturnType())
+#if($hasReturnType)
+    #set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
+    #set($returnTypeNameStr = ("new org.springframework.core.ParameterizedTypeReference<" + $returnTypeName +">(){}"))
+#end
+#set($hasRequestParam = $endpoint.requestParam)
 #parse("/templates/method_base.vm") {
         RestTemplate restTemplate = clientFactory.getRestTemplate();
         String baseUrl = clientFactory.getBaseUrl();
 #if($hasReturnType)
-        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.$endpoint.getHttpMethodDisplayName(), new HttpEntity<>(requestObject), $returnTypeNameStr);
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.$endpoint.getHttpMethodDisplayName(), $exchangeParam, $returnTypeNameStr);
         return response.getBody();
 #else
-        restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.$endpoint.getHttpMethodDisplayName(), new HttpEntity<>(requestObject), Void.class);
+        restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.$endpoint.getHttpMethodDisplayName(), $exchangeParam, Void.class);
 #end
     }

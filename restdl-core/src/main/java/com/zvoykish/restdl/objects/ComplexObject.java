@@ -70,7 +70,6 @@ public class ComplexObject extends BaseTypedObject {
     public String toString() {
         return "ComplexObject{" +
                 "type='" + type + '\'' +
-                ", fields=" + fields +
                 "} " + super.toString();
     }
 }

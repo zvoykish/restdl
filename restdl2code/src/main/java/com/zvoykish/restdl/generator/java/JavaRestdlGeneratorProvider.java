@@ -86,7 +86,6 @@ public class JavaRestdlGeneratorProvider implements RestdlGeneratorProvider {
     public String generateApiImplementation(List<EndpointInfo> endpoints, String className, String packageName,
                                             Map<Long, TypedObject> typeMap)
     {
-        // TODO 2: Generic request types
         // TODO 3: Path params (need to accept them as method parameters and replace the params in the URL string)
         Template template = Velocity.getTemplate("templates/class.vm");
         StringWriter stringWriter = new StringWriter();

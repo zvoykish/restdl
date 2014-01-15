@@ -14,14 +14,6 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
     private $clientFactoryClassName clientFactory;
 
 #foreach($endpoint in $endpoints)
-#if($endpoint.requestParam)
-    #set($requestParamName = $writer.resolveTypeName($endpoint.requestParam, $types))
-#end
-#set($hasReturnType = $endpoint.hasReturnType())
-#if($hasReturnType)
-    #set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
-    #set($returnTypeNameStr = ("new org.springframework.core.ParameterizedTypeReference<" + $returnTypeName +">(){}"))
-#end
     #parse("/templates/method_impl.vm")
 
 #end
