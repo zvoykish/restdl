@@ -17,17 +17,21 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
 #if($endpoint.requestParam)
     #set($requestParamName = $writer.resolveTypeName($endpoint.requestParam, $types))
 #end
-#set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
-#set($returnTypeNameStr = "new org.springframework.core.ParameterizedTypeReference<$endpoint.returnType.getClassName()>{}")
 #set($hasReturnType = $endpoint.hasReturnType())
+#if($hasReturnType)
+    #set($returnTypeName = $writer.resolveTypeName($endpoint.returnType, $types))
+    #set($returnTypeNameStr = ("new org.springframework.core.ParameterizedTypeReference<" + $returnTypeName +">(){}"))
+#end
     #parse("/templates/method_base.vm") {
         RestTemplate restTemplate = clientFactory.getRestTemplate();
         String baseUrl = clientFactory.getBaseUrl();
 #if($endpoint.httpMethod == "POST")
 ## POST
-        ResponseEntity<$returnTypeName> response = restTemplate.postForEntity(baseUrl + "$endpoint.url", requestObject, $returnTypeNameStr);
 #if($hasReturnType)
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.POST, new HttpEntity<>(requestObject), $returnTypeNameStr);
         return response.getBody();
+#else
+        restTemplate.postForEntity(baseUrl + "$endpoint.url", requestObject, Void.class);
 #end
 #elseif($endpoint.httpMethod == "PUT")
 ## PUT
@@ -40,7 +44,7 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
 #elseif($endpoint.httpMethod == "DELETE")
 ## DELETE
 #if($hasReturnType)
-        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.DELETE, new HttpEntity<>(requestObject), $returnTypeNameStr);
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.DELETE, null, $returnTypeNameStr);
         return response.getBody();
 #else
         restTemplate.delete(baseUrl + "$endpoint.url");
@@ -48,10 +52,10 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
 #else
 ## GET (also default in case method type is missing...)
 #if($hasReturnType)
-        ResponseEntity<$returnTypeName> response = restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
+        ResponseEntity<$returnTypeName> response = restTemplate.exchange(baseUrl + "$endpoint.url", HttpMethod.GET, null, $returnTypeNameStr);
         return response.getBody();
 #else
-        restTemplate.getForEntity(baseUrl + "$endpoint.url", $returnTypeNameStr);
+        restTemplate.getForEntity(baseUrl + "$endpoint.url", Void.class);
 #end
 #end
     }
