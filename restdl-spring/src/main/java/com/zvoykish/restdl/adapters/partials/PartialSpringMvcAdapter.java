@@ -7,8 +7,11 @@ import com.zvoykish.restdl.objects.EndpointInfo;
 import com.zvoykish.restdl.objects.TypedObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
+import org.springframework.core.ParameterNameDiscoverer;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.lang.annotation.Annotation;
@@ -31,6 +34,11 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
     private TypeHelper typeHelper;
 
     private String basePackage = System.getProperty("restdl.base.package");
+    private ParameterNameDiscoverer parameterNameDiscoverer;
+
+    public PartialSpringMvcAdapter() {
+        parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
+    }
 
     @Override
     public String getBasePackage() {
@@ -103,6 +111,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
         List<AnObject> pathParams = new ArrayList<>();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Type[] parameterTypes = method.getGenericParameterTypes();
+        String[] names = null;
         if (parameterAnnotations != null && parameterAnnotations.length > 0) {
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] currAnns = parameterAnnotations[i];
@@ -110,10 +119,16 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
                     for (Annotation annotation : currAnns) {
                         Type paramType = parameterTypes[i];
                         if (annotation instanceof PathVariable) {
-                            PathVariable param = (PathVariable) annotation;
+                            String paramName = ((PathVariable) annotation).value();
+                            if (StringUtils.isEmpty(paramName)) {
+                                if (names == null) {
+                                    names = parameterNameDiscoverer.getParameterNames(method);
+                                }
+                                paramName = names[i];
+                            }
+
                             TypedObject type = typeHelper.typeToAType(paramType, objects);
-                            // TODO: Support @PathVariable with no value, as it resolves to the param name...
-                            pathParams.add(new AnObject(param.value(), type));
+                            pathParams.add(new AnObject(paramName, type));
                         }
                     }
                 }
@@ -134,6 +149,7 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
         List<AnObject> queryParams = new ArrayList<>();
         Annotation[][] parameterAnnotations = method.getParameterAnnotations();
         Type[] parameterTypes = method.getGenericParameterTypes();
+        String[] names = null;
         if (parameterAnnotations != null && parameterAnnotations.length > 0) {
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] currAnns = parameterAnnotations[i];
@@ -142,9 +158,16 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
                         Type paramType = parameterTypes[i];
                         if (annotation instanceof RequestParam) {
                             RequestParam param = (RequestParam) annotation;
+                            String paramName = param.value();
+                            if (StringUtils.isEmpty(paramName)) {
+                                if (names == null) {
+                                    names = parameterNameDiscoverer.getParameterNames(method);
+                                }
+                                paramName = names[i];
+                            }
+
                             TypedObject type = typeHelper.typeToAType(paramType, objects);
-                            // TODO: Support @RequestParam with no value, as it resolves to the param name...
-                            queryParams.add(new AnObject(param.value(), type, param.defaultValue()));
+                            queryParams.add(new AnObject(paramName, type, param.defaultValue()));
                         }
                     }
                 }
