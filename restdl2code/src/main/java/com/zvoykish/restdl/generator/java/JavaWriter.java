@@ -2,8 +2,7 @@ package com.zvoykish.restdl.generator.java;
 
 import com.zvoykish.restdl.objects.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created with IntelliJ IDEA.
@@ -13,6 +12,7 @@ import java.util.Map;
  */
 public class JavaWriter {
     private final Map<String, String> cache = new HashMap<>();
+    private final static String PARAM_TEMPLATE = "{%s}";
 
     public String resolveTypeName(TypedObject type, Map<Long, TypedObject> typeMap) {
         String className = type.getClassName();
@@ -61,6 +61,30 @@ public class JavaWriter {
 
     @SuppressWarnings("UnusedDeclaration")
     public String resolveUrlWithParams(EndpointInfo endpointInfo) {
-        return endpointInfo.getUrl().replace("{", "\" + ").replace("}", " + \"");
+        String url = endpointInfo.getUrl();
+        Set<String> existingParams = new HashSet<>();
+        List<AnObject> pathParams = endpointInfo.getPathParams();
+        if (pathParams == null) {
+            return url;
+        }
+
+        for (AnObject paramObject : pathParams) {
+            existingParams.add(paramObject.getName());
+        }
+
+        String[] tokens = url.split("\\{|\\}");
+        for (String token : tokens) {
+            if (!token.contains("/")) {
+                String paramStr = String.format(PARAM_TEMPLATE, token);
+                if (existingParams.contains(token)) {
+                    url = url.replace(paramStr, "\" + " + token + " + \"");
+                }
+                else {
+                    url = url.replace(paramStr, '_' + token + '_');
+                }
+            }
+        }
+
+        return url;
     }
 }

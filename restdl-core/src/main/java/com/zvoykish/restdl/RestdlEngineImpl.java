@@ -94,7 +94,7 @@ public class RestdlEngineImpl implements RestdlEngine {
 
                 String methodUrl = adapter.getMethodUrl(method);
                 if (methodUrl != null && !methodUrl.trim().isEmpty()) {
-                    endpointInfo.setUrl(baseUrl + methodUrl);
+                    endpointInfo.setUrl(normalizeUrl(baseUrl, methodUrl));
                 }
                 else if (baseUrl != null && !baseUrl.trim().isEmpty()) {
                     endpointInfo.setUrl(baseUrl);
@@ -133,6 +133,15 @@ public class RestdlEngineImpl implements RestdlEngine {
 
         Collections.sort(methods);
         return methods;
+    }
+
+    private String normalizeUrl(String s1, String s2) {
+        if (s1.endsWith("/") && s2.startsWith("/")) {
+            return s1 + s2.substring(1);
+        }
+        else {
+            return s1 + s2;
+        }
     }
 
     private List<TypedObject> generateObjectInfo(Map<String, AtomicReference<TypedObject>> objects) {
