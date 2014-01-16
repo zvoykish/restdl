@@ -85,6 +85,21 @@ public class JavaWriter {
             }
         }
 
+        List<AnObject> queryParams = endpointInfo.getQueryParams();
+        if (queryParams != null && !queryParams.isEmpty()) {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < queryParams.size(); i++) {
+                if (i == 0) {
+                    sb.append('?');
+                }
+                else {
+                    sb.append('&');
+                }
+                String name = queryParams.get(i).getName();
+                sb.append(name).append("=\" + ").append(name).append(" + \"");
+            }
+            url = url + sb.toString();
+        }
         return url;
     }
 }
