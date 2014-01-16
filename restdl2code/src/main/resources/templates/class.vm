@@ -13,6 +13,10 @@ public class $className#if($superInterfaces) implements #foreach($interface in $
     @Autowired
     private $clientFactoryClassName clientFactory;
 
+    public void setClientFactory($clientFactoryClassName clientFactory) {
+        this.clientFactory = clientFactory;
+    }
+
 #foreach($endpoint in $endpoints)
     #parse("/templates/method_impl.vm")
 
