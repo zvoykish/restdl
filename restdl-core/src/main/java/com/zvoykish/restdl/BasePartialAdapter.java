@@ -37,6 +37,11 @@ public abstract class BasePartialAdapter implements RestdlAdapter {
         throw new UnsupportedOperationException("Unsupported by adapter");
     }
 
+    @Override
+    public List<AnObject> getMethodPathParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
+        throw new UnsupportedOperationException("Unsupported by adapter");
+    }
+
     public List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         throw new UnsupportedOperationException("Unsupported by adapter");
     }

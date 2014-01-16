@@ -37,6 +37,7 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
     private String description;
     private HttpMethod httpMethod;
     private String url;
+    private List<AnObject> pathParams;
     private List<AnObject> queryParams;
     private TypedObject requestParam;
     private TypedObject returnType;
@@ -82,6 +83,14 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         this.url = url;
     }
 
+    public List<AnObject> getPathParams() {
+        return pathParams;
+    }
+
+    public void setPathParams(List<AnObject> pathParams) {
+        this.pathParams = pathParams;
+    }
+
     public List<AnObject> getQueryParams() {
         return queryParams;
     }
@@ -114,23 +123,15 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         this.usedBy = usedBy;
     }
 
+    @org.codehaus.jackson.annotate.JsonIgnore
+    @com.fasterxml.jackson.annotation.JsonIgnore
     public String getHttpMethodDisplayName() {
         return httpMethod != null ? httpMethod.name() : HttpMethod.GET.name();
     }
 
     public void updateReferences(Map<Long, TypedObject> typesById) {
-        if (queryParams != null) {
-            for (AnObject queryParam : queryParams) {
-                TypedObject type = queryParam.getType();
-                if (type instanceof TypedObjectWrapper) {
-                    type = ((TypedObjectWrapper) type).getInstance().get();
-                    if (!TypeHelper.INLINE_TYPES.get()) {
-                        type = type.toReference();
-                    }
-                    queryParam.setType(type);
-                }
-            }
-        }
+        updateListReferences(pathParams);
+        updateListReferences(queryParams);
 
         if (requestParam instanceof TypedObjectWrapper) {
             requestParam = ((TypedObjectWrapper) requestParam).getInstance().get();
@@ -143,6 +144,21 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
             returnType = ((TypedObjectWrapper) returnType).getInstance().get();
             if (!TypeHelper.INLINE_TYPES.get()) {
                 returnType = returnType.toReference();
+            }
+        }
+    }
+
+    private void updateListReferences(List<AnObject> list) {
+        if (list != null) {
+            for (AnObject queryParam : list) {
+                TypedObject type = queryParam.getType();
+                if (type instanceof TypedObjectWrapper) {
+                    type = ((TypedObjectWrapper) type).getInstance().get();
+                    if (!TypeHelper.INLINE_TYPES.get()) {
+                        type = type.toReference();
+                    }
+                    queryParam.setType(type);
+                }
             }
         }
     }
@@ -182,5 +198,13 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
     @Override
     public int compareTo(EndpointInfo o) {
         return (getHttpMethod() + getUrl()).compareTo(o.getHttpMethod() + o.getUrl());
+    }
+
+    @Override
+    public String toString() {
+        return "EndpointInfo{" +
+                "httpMethod=" + httpMethod +
+                ", url='" + url + '\'' +
+                '}';
     }
 }

@@ -27,6 +27,8 @@ public interface RestdlAdapter {
 
     EndpointInfo.HttpMethod getMethodHttpMethod(Method method);
 
+    List<AnObject> getMethodPathParams(Method method, Map<String, AtomicReference<TypedObject>> objects);
+
     List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects);
 
     TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects);

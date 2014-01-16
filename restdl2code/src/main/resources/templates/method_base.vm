@@ -1,1 +1,1 @@
-public#if($hasReturnType) $returnTypeName#else void#end $endpoint.generateEndpointName()(#if($requestParamName)$requestParamName requestObject#end)
+public#if($hasReturnType) $returnTypeName#else void#end $endpoint.generateEndpointName()(#parse("/templates/method_args.vm"))

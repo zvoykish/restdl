@@ -58,6 +58,11 @@ public abstract class BaseSpringWithJacksonAdapter implements RestdlAdapter {
     }
 
     @Override
+    public List<AnObject> getMethodPathParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
+        return springMvcAdapter.getMethodPathParams(method, objects);
+    }
+
+    @Override
     public List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects) {
         return springMvcAdapter.getMethodQueryParams(method, objects);
     }

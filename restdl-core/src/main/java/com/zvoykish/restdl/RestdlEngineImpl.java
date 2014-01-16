@@ -103,6 +103,11 @@ public class RestdlEngineImpl implements RestdlEngine {
                     endpointInfo.setUrl("/");
                 }
 
+                List<AnObject> pathParams = adapter.getMethodPathParams(method, objects);
+                if (!pathParams.isEmpty()) {
+                    endpointInfo.setPathParams(pathParams);
+                }
+
                 List<AnObject> queryParams = adapter.getMethodQueryParams(method, objects);
                 if (!queryParams.isEmpty()) {
                     endpointInfo.setQueryParams(queryParams);

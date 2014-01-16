@@ -75,7 +75,7 @@ public class Restdl2Code {
 
             Path targetPath = Paths.get(baseTargetDir);
             Map<Long, TypedObject> types = generateTypes(api, targetPath);
-            generateMethods(api, types);
+            deReferenceMethodTypes(api, types);
             generateApi(api, types, targetPath, basePackage);
         }
         finally {
@@ -138,7 +138,7 @@ public class Restdl2Code {
         return typeMap;
     }
 
-    private void generateMethods(ApiDetailsResponse api, Map<Long, TypedObject> types) throws IOException {
+    private void deReferenceMethodTypes(ApiDetailsResponse api, Map<Long, TypedObject> types) throws IOException {
         for (EndpointInfo endpointInfo : api.getEndpoints()) {
             TypedObject requestParam = endpointInfo.getRequestParam();
             if (requestParam != null) {
@@ -150,11 +150,15 @@ public class Restdl2Code {
                 endpointInfo.setReturnType(types.get(returnType.getId()));
             }
 
-            List<AnObject> queryParams = endpointInfo.getQueryParams();
-            if (queryParams != null) {
-                for (AnObject object : queryParams) {
-                    object.setType(types.get(object.getType().getId()));
-                }
+            deReferenceList(types, endpointInfo.getPathParams());
+            deReferenceList(types, endpointInfo.getQueryParams());
+        }
+    }
+
+    private void deReferenceList(Map<Long, TypedObject> types, List<AnObject> pathParams) {
+        if (pathParams != null) {
+            for (AnObject object : pathParams) {
+                object.setType(types.get(object.getType().getId()));
             }
         }
     }
