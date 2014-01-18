@@ -5,15 +5,11 @@ import com.zvoykish.restdl.TypeHelper;
 import com.zvoykish.restdl.objects.AnObject;
 import com.zvoykish.restdl.objects.EndpointInfo;
 import com.zvoykish.restdl.objects.TypedObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
+import org.reflections.Reflections;
 import org.springframework.core.LocalVariableTableParameterNameDiscoverer;
 import org.springframework.core.ParameterNameDiscoverer;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
 
+import javax.ws.rs.*;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
@@ -23,36 +19,24 @@ import java.util.concurrent.atomic.AtomicReference;
 /**
  * Created with IntelliJ IDEA.
  * User: Zvoykish
- * Date: 1/7/14
- * Time: 00:41
+ * Date: 1/17/14
+ * Time: 01:29
  */
-@Component
-public class PartialSpringMvcAdapter extends BasePartialAdapter {
-    @Autowired
-    private ApplicationContext context;
-
+public class PartialJerseyAdapter extends BasePartialAdapter {
     private TypeHelper typeHelper;
 
     private ParameterNameDiscoverer parameterNameDiscoverer;
 
-    public PartialSpringMvcAdapter() {
+    public PartialJerseyAdapter() {
         parameterNameDiscoverer = new LocalVariableTableParameterNameDiscoverer();
     }
 
     @Override
     public Collection<Class> getWebControllers() {
-        Collection<Class> classes = new HashSet<>();
-        Map<String, Object> controllerMap = context.getBeansWithAnnotation(Controller.class);
-        for (Object controller : controllerMap.values()) {
-            classes.add(controller.getClass());
-        }
-        controllerMap = context.getBeansWithAnnotation(RequestMapping.class);
-        for (Object controller : controllerMap.values()) {
-            classes.add(controller.getClass());
-        }
-
-        classes = new ArrayList<>(classes);
-        Collections.sort((List<Class>) classes, new Comparator<Class>() {
+        List<Class> classes = new ArrayList<>();
+        Reflections reflections = new Reflections(getBasePackage());
+        classes.addAll(reflections.getTypesAnnotatedWith(Path.class));
+        Collections.sort(classes, new Comparator<Class>() {
             @Override
             public int compare(Class o1, Class o2) {
                 return o1.getName().compareTo(o2.getName());
@@ -64,11 +48,11 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
     @Override
     public String getControllerBaseUrl(Class<?> controllerClass) {
         String baseUrl = "";
-        RequestMapping controllerMapping = controllerClass.getAnnotation(RequestMapping.class);
-        if (controllerMapping != null) {
-            String[] values = controllerMapping.value();
-            if (values != null && values.length > 0) {
-                baseUrl = values[0];
+        Path controllerPath = controllerClass.getAnnotation(Path.class);
+        if (controllerPath != null) {
+            String value = controllerPath.value();
+            if (value != null && !value.trim().isEmpty()) {
+                baseUrl = value;
             }
         }
         return baseUrl;
@@ -77,11 +61,11 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
     @Override
     public String getMethodUrl(Method method) {
         String methodUrl = "";
-        RequestMapping methodMapping = method.getAnnotation(RequestMapping.class);
-        if (methodMapping != null) {
-            String[] values = methodMapping.value();
-            if (values != null && values.length > 0) {
-                methodUrl = values[0];
+        Path controllerPath = method.getAnnotation(Path.class);
+        if (controllerPath != null) {
+            String value = controllerPath.value();
+            if (value != null && !value.trim().isEmpty()) {
+                methodUrl = value;
             }
         }
         return methodUrl;
@@ -89,15 +73,18 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
 
     @Override
     public EndpointInfo.HttpMethod getMethodHttpMethod(Method method) {
-        EndpointInfo.HttpMethod httpMethod = null;
-        RequestMapping methodMapping = method.getAnnotation(RequestMapping.class);
-        if (methodMapping != null) {
-            RequestMethod[] requestMethods = methodMapping.method();
-            if (requestMethods != null && requestMethods.length > 0) {
-                httpMethod = EndpointInfo.HttpMethod.valueOf(requestMethods[0].name());
-            }
+        if (method.isAnnotationPresent(POST.class)) {
+            return EndpointInfo.HttpMethod.POST;
         }
-        return httpMethod;
+        else if (method.isAnnotationPresent(PUT.class)) {
+            return EndpointInfo.HttpMethod.PUT;
+        }
+        else if (method.isAnnotationPresent(DELETE.class)) {
+            return EndpointInfo.HttpMethod.DELETE;
+        }
+        else {
+            return EndpointInfo.HttpMethod.GET;
+        }
     }
 
     @Override
@@ -112,9 +99,9 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
                 if (currAnns != null && currAnns.length > 0) {
                     for (Annotation annotation : currAnns) {
                         Type paramType = parameterTypes[i];
-                        if (annotation instanceof PathVariable) {
-                            String paramName = ((PathVariable) annotation).value();
-                            if (StringUtils.isEmpty(paramName)) {
+                        if (annotation instanceof PathParam) {
+                            String paramName = ((PathParam) annotation).value();
+                            if (paramName != null && !paramName.trim().isEmpty()) {
                                 if (names == null) {
                                     names = parameterNameDiscoverer.getParameterNames(method);
                                 }
@@ -148,21 +135,28 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] currAnns = parameterAnnotations[i];
                 if (currAnns != null && currAnns.length > 0) {
+                    Type paramType = parameterTypes[i];
+                    String paramName = null;
+                    String defaultValue = null;
                     for (Annotation annotation : currAnns) {
-                        Type paramType = parameterTypes[i];
-                        if (annotation instanceof RequestParam) {
-                            RequestParam param = (RequestParam) annotation;
-                            String paramName = param.value();
-                            if (StringUtils.isEmpty(paramName)) {
+                        if (annotation instanceof QueryParam) {
+                            QueryParam param = (QueryParam) annotation;
+                            paramName = param.value();
+                            if (paramName == null || paramName.trim().isEmpty()) {
                                 if (names == null) {
                                     names = parameterNameDiscoverer.getParameterNames(method);
                                 }
                                 paramName = names[i];
                             }
-
-                            TypedObject type = typeHelper.typeToAType(paramType, objects);
-                            queryParams.add(new AnObject(paramName, type, param.defaultValue()));
                         }
+                        else if (annotation instanceof DefaultValue) {
+                            defaultValue = ((DefaultValue) annotation).value();
+                        }
+                    }
+
+                    if (paramName != null && !paramName.trim().isEmpty()) {
+                        TypedObject type = typeHelper.typeToAType(paramType, objects);
+                        queryParams.add(new AnObject(paramName, type, defaultValue));
                     }
                 }
             }
@@ -185,14 +179,9 @@ public class PartialSpringMvcAdapter extends BasePartialAdapter {
         if (parameterAnnotations != null && parameterAnnotations.length > 0) {
             for (int i = 0; i < parameterAnnotations.length; i++) {
                 Annotation[] currAnns = parameterAnnotations[i];
-                if (currAnns != null && currAnns.length > 0) {
-                    for (Annotation annotation : currAnns) {
-                        Type paramType = parameterTypes[i];
-                        if (annotation instanceof RequestBody) {
-                            requestParam = typeHelper.typeToAType(paramType, objects);
-                            break;
-                        }
-                    }
+                if (currAnns == null || currAnns.length == 0) {
+                    Type paramType = parameterTypes[i];
+                    requestParam = typeHelper.typeToAType(paramType, objects);
                 }
             }
         }

@@ -25,7 +25,8 @@ public class TypeHelperImpl implements TypeHelper {
         if (objects.containsKey(className)) {
             return new TypedObjectWrapper(objects.get(className));
         }
-        objects.put(className, new AtomicReference<TypedObject>());
+        AtomicReference<TypedObject> objectReference = new AtomicReference<>();
+        objects.put(className, objectReference);
 
         TypedObject object = null;
         try {
@@ -34,8 +35,7 @@ public class TypeHelperImpl implements TypeHelper {
                 if (clazz.isInterface()) {
                     Class<?> targetClass = adapter.resolveTargetClass(clazz);
                     if (!clazz.equals(targetClass)) {
-                        object = typeToAType(targetClass, objects);
-                        return getReferencedObject(object);
+                        return typeToAType(targetClass, objects);
                     }
                 }
 
@@ -112,7 +112,9 @@ public class TypeHelperImpl implements TypeHelper {
         }
         finally {
             if (className != null && object != null) {
-                objects.get(className).set(object);
+                objectReference.set(object);
+            } else {
+                objects.remove(className);
             }
         }
     }

@@ -17,8 +17,11 @@ import java.util.concurrent.atomic.AtomicReference;
  * Time: 01:07
  */
 public abstract class BasePartialAdapter implements RestdlAdapter {
+    protected String basePackage = System.getProperty("restdl.base.package");
+
+    @Override
     public String getBasePackage() {
-        throw new UnsupportedOperationException("Unsupported by adapter");
+        return basePackage;
     }
 
     public Collection<Class> getWebControllers() {
