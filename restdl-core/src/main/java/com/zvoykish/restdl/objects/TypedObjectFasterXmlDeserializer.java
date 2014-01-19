@@ -2,6 +2,8 @@ package com.zvoykish.restdl.objects;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.*;
+import com.zvoykish.restdl.objects.types.AnObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.io.IOException;
 import java.lang.reflect.Field;

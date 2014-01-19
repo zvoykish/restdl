@@ -2,12 +2,14 @@ package com.zvoykish.restdl.objects;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.zvoykish.restdl.objects.types.TypedObject;
 import sun.misc.BASE64Encoder;
 
 import java.security.MessageDigest;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +27,8 @@ public class ApiDetailsResponse {
     private List<EndpointInfo> endpoints;
     private List<TypedObject> types;
     private String md5;
+    private long timestamp;
+    private String timestampString;
 
     protected ApiDetailsResponse() {
     }
@@ -33,6 +37,10 @@ public class ApiDetailsResponse {
         this.endpoints = endpoints;
         this.types = types;
         this.md5 = null;
+
+        Date now = new Date();
+        this.timestamp = now.getTime();
+        this.timestampString = new SimpleDateFormat().format(now);
     }
 
     public List<EndpointInfo> getEndpoints() {
@@ -59,6 +67,22 @@ public class ApiDetailsResponse {
         this.md5 = md5;
     }
 
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public String getTimestampString() {
+        return timestampString;
+    }
+
+    public void setTimestampString(String timestampString) {
+        this.timestampString = timestampString;
+    }
+
     public void calculateMd5() throws Exception {
         Collections.sort(endpoints, new Comparator<EndpointInfo>() {
             @Override
@@ -75,24 +99,9 @@ public class ApiDetailsResponse {
         });
 
         JsonNode node = new ObjectMapper().valueToTree(new Object[]{endpoints, types});
-        removeIds(node);
         MessageDigest md = MessageDigest.getInstance("MD5");
         byte[] md5Bytes = md.digest(node.toString().getBytes("UTF-8"));
         this.md5 = new BASE64Encoder().encode(md5Bytes);
-    }
-
-    private void removeIds(JsonNode node) {
-        if (node == null) {
-            return;
-        }
-
-        if (node.isObject()) {
-            ((ObjectNode) node).remove("id");
-        }
-
-        for (JsonNode jsonNode : node) {
-            removeIds(jsonNode);
-        }
     }
 
     @Override
@@ -100,6 +109,9 @@ public class ApiDetailsResponse {
         return "ApiDetailsResponse{" +
                 "endpoints=" + endpoints +
                 ", types=" + types +
+                ", md5='" + md5 + '\'' +
+                ", timestamp=" + timestamp +
+                ", timestampString='" + timestampString + '\'' +
                 '}';
     }
 }

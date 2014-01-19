@@ -1,6 +1,9 @@
 package com.zvoykish.restdl.objects;
 
 import com.zvoykish.restdl.TypeHelper;
+import com.zvoykish.restdl.objects.types.AnObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObjectWrapper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -178,7 +181,7 @@ public class EndpointInfo implements Comparable<EndpointInfo> {
         String methodName = method.name().toLowerCase();
         sb.append(methodName);
         for (String token : tokens) {
-            token = token.trim().replaceAll("[^a-zA-Z]", "");
+            token = token.trim().replaceAll("[^a-zA-Z0-9]", "");
             if (!token.isEmpty()) {
                 sb.append(Character.toUpperCase(token.charAt(0)));
                 if (token.length() > 1) {

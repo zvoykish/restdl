@@ -2,9 +2,9 @@ package com.zvoykish.restdl.generator.java.impl;
 
 import com.zvoykish.restdl.generator.ContentGenerator;
 import com.zvoykish.restdl.generator.java.JavaWriter;
-import com.zvoykish.restdl.objects.ComplexObject;
-import com.zvoykish.restdl.objects.ParametrizedComplexObject;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.ComplexObject;
+import com.zvoykish.restdl.objects.types.ParametrizedComplexObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.util.Map;
 

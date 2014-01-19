@@ -1,4 +1,4 @@
-#if($requestParamName)$requestParamName requestObject#if($endpoint.pathParams), #end#end
+#if($requestParamName)$requestParamName requestObject#if($endpoint.pathParams || $endpoint.queryParams), #end#end
 #if($endpoint.pathParams)
 #foreach($pathParam in $endpoint.pathParams)
 $writer.resolveTypeName($pathParam.type, $types) $pathParam.name#if( $foreach.hasNext || $endpoint.queryParams), #end

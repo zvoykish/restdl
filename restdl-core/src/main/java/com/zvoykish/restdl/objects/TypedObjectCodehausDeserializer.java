@@ -1,5 +1,6 @@
 package com.zvoykish.restdl.objects;
 
+import com.zvoykish.restdl.objects.types.TypedObject;
 import org.codehaus.jackson.JsonNode;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.JsonProcessingException;

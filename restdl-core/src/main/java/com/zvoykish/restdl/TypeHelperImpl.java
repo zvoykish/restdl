@@ -1,6 +1,6 @@
 package com.zvoykish.restdl;
 
-import com.zvoykish.restdl.objects.*;
+import com.zvoykish.restdl.objects.types.*;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.*;

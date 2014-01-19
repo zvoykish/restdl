@@ -2,10 +2,10 @@ package com.zvoykish.restdl;
 
 import com.zvoykish.restdl.annotations.Description;
 import com.zvoykish.restdl.annotations.UsedBy;
-import com.zvoykish.restdl.objects.AnObject;
-import com.zvoykish.restdl.objects.ApiDetailsResponse;
-import com.zvoykish.restdl.objects.EndpointInfo;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.*;
+import com.zvoykish.restdl.objects.types.AnObject;
+import com.zvoykish.restdl.objects.types.BaseTypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -31,6 +31,7 @@ public class RestdlEngineImpl implements RestdlEngine {
     @Override
     public ApiDetailsResponse getApiDetails(boolean inlineTypes) {
         TypeHelper.INLINE_TYPES.set(inlineTypes);
+        BaseTypedObject.resetCounter();
         try {
             Map<String, AtomicReference<TypedObject>> objects = new HashMap<>();
             List<EndpointInfo> methods = generateEndpointInfo(objects);

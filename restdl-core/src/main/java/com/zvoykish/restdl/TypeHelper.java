@@ -1,6 +1,6 @@
 package com.zvoykish.restdl;
 
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.lang.reflect.Type;
 import java.util.Map;

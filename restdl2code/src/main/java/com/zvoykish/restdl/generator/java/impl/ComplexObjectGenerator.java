@@ -2,10 +2,10 @@ package com.zvoykish.restdl.generator.java.impl;
 
 import com.zvoykish.restdl.generator.ContentGenerator;
 import com.zvoykish.restdl.generator.java.JavaWriter;
-import com.zvoykish.restdl.objects.AnObject;
-import com.zvoykish.restdl.objects.ComplexObject;
-import com.zvoykish.restdl.objects.GenericDeclarationObject;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.AnObject;
+import com.zvoykish.restdl.objects.types.ComplexObject;
+import com.zvoykish.restdl.objects.types.GenericDeclarationObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;

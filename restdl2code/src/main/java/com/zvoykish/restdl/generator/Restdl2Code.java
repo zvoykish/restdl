@@ -2,10 +2,10 @@ package com.zvoykish.restdl.generator;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.zvoykish.restdl.generator.java.JavaRestdlGeneratorProvider;
-import com.zvoykish.restdl.objects.AnObject;
+import com.zvoykish.restdl.objects.types.AnObject;
 import com.zvoykish.restdl.objects.ApiDetailsResponse;
 import com.zvoykish.restdl.objects.EndpointInfo;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.io.File;
 import java.io.IOException;

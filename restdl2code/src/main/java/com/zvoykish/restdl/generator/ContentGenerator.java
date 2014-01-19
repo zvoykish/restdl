@@ -1,6 +1,6 @@
 package com.zvoykish.restdl.generator;
 
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.util.Map;
 

@@ -1,7 +1,7 @@
 package com.zvoykish.restdl.generator;
 
 import com.zvoykish.restdl.objects.EndpointInfo;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.util.List;
 import java.util.Map;

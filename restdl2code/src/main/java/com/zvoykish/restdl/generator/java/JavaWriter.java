@@ -1,6 +1,7 @@
 package com.zvoykish.restdl.generator.java;
 
 import com.zvoykish.restdl.objects.*;
+import com.zvoykish.restdl.objects.types.*;
 
 import java.util.*;
 
@@ -80,7 +81,7 @@ public class JavaWriter {
                     url = url.replace(paramStr, "\" + " + token + " + \"");
                 }
                 else {
-                    url = url.replace(paramStr, '_' + token + '_');
+                    url = url.replace(paramStr, "__" + token + "__");
                 }
             }
         }

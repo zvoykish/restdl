@@ -1,8 +1,8 @@
 package com.zvoykish.restdl;
 
-import com.zvoykish.restdl.objects.AnObject;
+import com.zvoykish.restdl.objects.types.AnObject;
 import com.zvoykish.restdl.objects.EndpointInfo;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 
 import java.lang.reflect.Method;
 import java.util.Collection;
@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * Date: 1/7/14
  * Time: 00:22
  */
-public interface RestdlAdapter {
+public interface RestdlAdapter extends TargetClassResolver {
     String getBasePackage();
 
     Collection<Class> getWebControllers();
@@ -32,6 +32,4 @@ public interface RestdlAdapter {
     List<AnObject> getMethodQueryParams(Method method, Map<String, AtomicReference<TypedObject>> objects);
 
     TypedObject getMethodRequestParam(Method method, Map<String, AtomicReference<TypedObject>> objects);
-
-    Class<?> resolveTargetClass(Class<?> clazz);
 }

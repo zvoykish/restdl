@@ -1,8 +1,8 @@
 package com.zvoykish.restdl.generator.java.impl;
 
 import com.zvoykish.restdl.generator.ContentGenerator;
-import com.zvoykish.restdl.objects.PrimitiveObject;
-import com.zvoykish.restdl.objects.TypedObject;
+import com.zvoykish.restdl.objects.types.PrimitiveObject;
+import com.zvoykish.restdl.objects.types.TypedObject;
 import org.apache.velocity.Template;
 import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
