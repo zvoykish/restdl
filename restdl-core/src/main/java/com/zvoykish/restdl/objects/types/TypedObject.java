@@ -1,6 +1,5 @@
 package com.zvoykish.restdl.objects.types;
 
-import com.zvoykish.restdl.objects.TypedObjectCodehausDeserializer;
 import com.zvoykish.restdl.objects.TypedObjectFasterXmlDeserializer;
 
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Map;
  * Time: 00:50
  */
 @SuppressWarnings("UnusedDeclaration")
-@org.codehaus.jackson.map.annotate.JsonDeserialize(using = TypedObjectCodehausDeserializer.class)
 @com.fasterxml.jackson.databind.annotation.JsonDeserialize(using = TypedObjectFasterXmlDeserializer.class)
 public interface TypedObject {
     long getId();
